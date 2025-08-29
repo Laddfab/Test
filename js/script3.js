@@ -1,38 +1,42 @@
-// Verifica que este archivo cargó
-console.log("✅ script3.js cargado");
-
-// Manejo de errores en tiempo real (si algo falla, lo verás en consola)
-window.addEventListener("error", (e) => {
-  console.error("🛑 Error global:", e.message);
-});
-
 // Escena, cámara, renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(2.5, 2, 4);
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(3, 2, 5);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000, 1);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x202124, 1); // gris medio (visible)
 document.body.appendChild(renderer.domElement);
 
-// Controles (global: THREE.OrbitControls)
+// Controles
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Ayudas visuales
-scene.add(new THREE.AxesHelper(2));
-const grid = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
-grid.position.y = -1;
+// Ayudas (más brillantes)
+scene.add(new THREE.AxesHelper(3));
+const grid = new THREE.GridHelper(20, 20, 0x88bfd7, 0x334455);
+grid.position.y = -1.5;
 scene.add(grid);
 
-// Cubo visible sin luces (MeshBasicMaterial NO requiere luz)
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: 0x62b6de })
-);
+// Geometría principal
+const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+
+// MATERIAL 1: visible sin luces (por defecto)
+let materialNormal = new THREE.MeshNormalMaterial({ wireframe:false });
+
+// MATERIAL 2: con luces (actívalo con tecla L)
+let materialLit = new THREE.MeshStandardMaterial({ color:0x62b6de, metalness:0.2, roughness:0.4 });
+
+// Malla
+const cube = new THREE.Mesh(geometry, materialNormal);
 scene.add(cube);
+
+// Luces (apagadas inicialmente, solo para materialLit)
+const hemi = new THREE.HemisphereLight(0xffffff, 0x202020, 1.1);
+const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+dir.position.set(3, 5, 2);
+let lightsOn = false;
 
 // Animación
 function animate() {
@@ -45,15 +49,50 @@ function animate() {
 animate();
 
 // Resize
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
 
-// Fullscreen con doble clic
-window.addEventListener("dblclick", () => {
+// Atajos de teclado
+addEventListener("keydown", (e) => {
+  if (e.key === "w" || e.key === "W") {
+    materialNormal.wireframe = !materialNormal.wireframe;
+    materialLit.wireframe = materialNormal.wireframe;
+  }
+  if (e.key === "b" || e.key === "B") {
+    const bg = renderer.getClearColor(new THREE.Color());
+    const isDark = bg.getHex() === 0x202124;
+    renderer.setClearColor(isDark ? 0xffffff : 0x202124, 1); // blanco <-> gris oscuro
+  }
+  if (e.key === "l" || e.key === "L") {
+    // Alterna entre material sin luces y con luces
+    const usingNormal = cube.material === materialNormal;
+    cube.material = usingNormal ? materialLit : materialNormal;
+
+    // Enciende/apaga luces según material
+    if (usingNormal && !lightsOn) {
+      scene.add(hemi, dir);
+      lightsOn = true;
+    } else if (!usingNormal && lightsOn) {
+      scene.remove(hemi, dir);
+      lightsOn = false;
+    }
+  }
+  if (e.key === "r" || e.key === "R") {
+    camera.position.set(3, 2, 5);
+    controls.target.set(0, 0, 0);
+    controls.update();
+  }
+});
+
+// Doble clic: fullscreen
+addEventListener("dblclick", () => {
   const el = renderer.domElement;
   if (!document.fullscreenElement) el.requestFullscreen?.();
   else document.exitFullscreen?.();
 });
+
+// Log mínimo para confirmar carga
+console.log("Three.js:", THREE.REVISION, "Canvas size:", renderer.domElement.width, "x", renderer.domElement.height);
