@@ -7,15 +7,21 @@
   <style>
     html, body { margin:0; height:100%; background:#202124; }
     canvas { display:block; }
+    .ui { position:fixed; left:10px; bottom:10px; color:#fff; font:12px system-ui; }
   </style>
 </head>
 <body>
-  <h3 style="color:white;position:fixed;left:10px;bottom:10px;">Si ves un cubo girando → funciona ✅</h3>
+  <div class="ui">Si ves un cubo girando → funciona ✅</div>
 
-  <!-- Primero carga la librería -->
+  <!-- 1) Cargar Three.js (SIN async/defer, SIN type="module") -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 
-  <!-- Después tu script -->
-  <script src="js/script3.js"></script>
+  <!-- 2) Verificación inmediata -->
+  <script>
+    console.log("THREE presente?", typeof THREE !== "undefined", "REV:", typeof THREE !== "undefined" ? THREE.REVISION : "N/A");
+  </script>
+
+  <!-- 3) Tu script (usa cache-busting para evitar caché) -->
+  <script src="js/script3.js?v=2"></script>
 </body>
 </html>
