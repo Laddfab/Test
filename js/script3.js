@@ -1,24 +1,33 @@
-// Importa Three y OrbitControls como MÓDULOS desde el CDN
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js";
+// Verifica que este archivo cargó
+console.log("✅ script3.js cargado");
+
+// Manejo de errores en tiempo real (si algo falla, lo verás en consola)
+window.addEventListener("error", (e) => {
+  console.error("🛑 Error global:", e.message);
+});
 
 // Escena, cámara, renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(2.5, 2, 4);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x000000, 1);
 document.body.appendChild(renderer.domElement);
 
-// Controles
-const controls = new OrbitControls(camera, renderer.domElement);
+// Controles (global: THREE.OrbitControls)
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Ejes y cubo
+// Ayudas visuales
 scene.add(new THREE.AxesHelper(2));
+const grid = new THREE.GridHelper(10, 10, 0x444444, 0x222222);
+grid.position.y = -1;
+scene.add(grid);
+
+// Cubo visible sin luces (MeshBasicMaterial NO requiere luz)
 const cube = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
   new THREE.MeshBasicMaterial({ color: 0x62b6de })
@@ -36,14 +45,14 @@ function animate() {
 animate();
 
 // Resize
-addEventListener("resize", () => {
-  camera.aspect = innerWidth / innerHeight;
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // Fullscreen con doble clic
-addEventListener("dblclick", () => {
+window.addEventListener("dblclick", () => {
   const el = renderer.domElement;
   if (!document.fullscreenElement) el.requestFullscreen?.();
   else document.exitFullscreen?.();
