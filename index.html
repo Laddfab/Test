@@ -2,23 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LADDFAB · Three.js (seguro)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LADDFAB · Three.js visible</title>
   <style>
-    html, body { margin:0; height:100%; background:#000; }
+    html, body { margin:0; height:100%; background:#202124; }
     canvas { display:block; }
-    .ui { position:fixed; left:10px; bottom:10px; color:#bbb; font:12px system-ui; }
+    .ui {
+      position:fixed; left:12px; bottom:12px; padding:6px 8px; border-radius:8px;
+      font:12px system-ui; color:#eee; background:rgba(0,0,0,.35); user-select:none
+    }
   </style>
 </head>
 <body>
-  <div class="ui">Arrastra para orbitar · Doble clic: fullscreen</div>
+  <div class="ui">B=fondo · W=wireframe · L=luces · R=reset cámara</div>
 
-  <!-- Three.js en modo global (no módulos) -->
+  <!-- Three.js global (sin módulos) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
-  <!-- OrbitControls en modo global (adjunta THREE.OrbitControls) -->
+  <!-- OrbitControls global -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/OrbitControls.js"></script>
 
-  <!-- Tu script (nombre exacto en minúsculas y carpeta js/) -->
+  <!-- Tu script -->
   <script src="js/script3.js"></script>
 </body>
 </html>
