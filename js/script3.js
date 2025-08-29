@@ -17,7 +17,7 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Ejes y cubo (MeshBasicMaterial no necesita luces)
+// Ejes y cubo
 scene.add(new THREE.AxesHelper(2));
 const cube = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
