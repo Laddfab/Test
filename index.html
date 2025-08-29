@@ -2,26 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LADDFAB · Three.js visible</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prueba Three.js</title>
   <style>
     html, body { margin:0; height:100%; background:#202124; }
     canvas { display:block; }
-    .ui {
-      position:fixed; left:12px; bottom:12px; padding:6px 8px; border-radius:8px;
-      font:12px system-ui; color:#eee; background:rgba(0,0,0,.35); user-select:none
-    }
   </style>
 </head>
 <body>
-  <div class="ui">B=fondo · W=wireframe · L=luces · R=reset cámara</div>
+  <h3 style="color:white;position:fixed;left:10px;bottom:10px;">Si ves un cubo girando → funciona ✅</h3>
 
-  <!-- Three.js global (sin módulos) -->
+  <!-- Primero carga la librería -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
-  <!-- OrbitControls global -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/examples/js/controls/OrbitControls.js"></script>
 
-  <!-- Tu script -->
+  <!-- Después tu script -->
   <script src="js/script3.js"></script>
 </body>
 </html>
