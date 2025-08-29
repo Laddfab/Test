@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prueba Three.js</title>
+  <title>Prueba Three.js (con fallbacks)</title>
   <style>
     html, body { margin:0; height:100%; background:#202124; }
     canvas { display:block; }
@@ -13,15 +13,42 @@
 <body>
   <div class="ui">Si ves un cubo girando → funciona ✅</div>
 
-  <!-- 1) Cargar Three.js (SIN async/defer, SIN type="module") -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
-
-  <!-- 2) Verificación inmediata -->
+  <!-- CARGA CON FALLBACKS -->
   <script>
-    console.log("THREE presente?", typeof THREE !== "undefined", "REV:", typeof THREE !== "undefined" ? THREE.REVISION : "N/A");
-  </script>
+    function loadScript(src, onload, onerror){
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = onload;
+      s.onerror = onerror;
+      document.head.appendChild(s);
+    }
 
-  <!-- 3) Tu script (usa cache-busting para evitar caché) -->
-  <script src="js/script3.js?v=2"></script>
+    function boot(){
+      console.log("THREE presente?", typeof THREE !== "undefined", "REV:", typeof THREE !== "undefined" ? THREE.REVISION : "N/A");
+      // Carga tu script una vez que THREE exista
+      var app = document.createElement('script');
+      app.src = "js/script3.js?v=3";   // fuerza recarga
+      document.body.appendChild(app);
+    }
+
+    // cadena de fallbacks: unpkg -> cdnjs -> jsDelivr -> local (lib/three.min.js)
+    loadScript(
+      "https://unpkg.com/three@0.161.0/build/three.min.js",
+      boot,
+      () => loadScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.161.0/three.min.js",
+        boot,
+        () => loadScript(
+          "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js",
+          boot,
+          () => loadScript( // último recurso: copia local
+            "lib/three.min.js",
+            boot,
+            () => console.error("🛑 No se pudo cargar three.min.js desde ningún origen")
+          )
+        )
+      )
+    );
+  </script>
 </body>
 </html>
