@@ -1,20 +1,27 @@
-// Escena mínima: si esto falla, mira la consola (F12)
+// Importamos Three desde tu carpeta lib
+import * as THREE from "../lib/three.module.min.js";
+
+// Escena básica
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+
+// Cámara
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 3;
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(innerWidth, innerHeight);
+// Renderizador
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x202124, 1);
 document.body.appendChild(renderer.domElement);
 
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(),
-  new THREE.MeshNormalMaterial() // NO necesita luces
-);
+// Cubo
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshNormalMaterial(); // colores por normales (no requiere luces)
+const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
-function animate(){
+// Animación
+function animate() {
   requestAnimationFrame(animate);
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.02;
@@ -22,8 +29,10 @@ function animate(){
 }
 animate();
 
-addEventListener("resize", ()=>{
-  camera.aspect = innerWidth/innerHeight;
+// Ajuste al redimensionar
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
