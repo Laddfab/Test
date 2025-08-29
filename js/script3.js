@@ -1,7 +1,7 @@
-// Importamos Three desde tu carpeta lib
+// Importar Three desde la carpeta lib
 import * as THREE from "../lib/three.module.min.js";
 
-// Escena básica
+// Escena
 const scene = new THREE.Scene();
 
 // Cámara
@@ -16,7 +16,7 @@ document.body.appendChild(renderer.domElement);
 
 // Cubo
 const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshNormalMaterial(); // colores por normales (no requiere luces)
+const material = new THREE.MeshNormalMaterial();
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
@@ -29,10 +29,11 @@ function animate() {
 }
 animate();
 
-// Ajuste al redimensionar
+// Ajustar al redimensionar
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
 
