@@ -1,10 +1,22 @@
 import * as THREE from "three";
 import { OrbitControls } from "../lib/three.js-r161/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "../lib/three.js-r161/jsm/loaders/GLTFLoader.js";
+import { OBJLoader }  from "../lib/three.js-r161/jsm/loaders/OBJLoader.js";
 
 const pane = document.getElementById("three-pane");
 
-// --- Escena / cámara / renderer ---
+/* =========================
+   CONFIG RÁPIDA
+   - Cambia aquí tu archivo por defecto
+   - O pásalo en la URL: ?model=assets/LoQueSea.glb
+   Ej: https://.../index.html?model=assets/Test1.glb
+========================= */
+const params = new URLSearchParams(location.search);
+const MODEL_PATH = params.get("model") || "../assets/rhino1.glb";
+
+/* =========================
+   Escena / cámara / renderer
+========================= */
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
@@ -17,14 +29,17 @@ pane.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.target.set(0, 0.5, 0);
 
-// Luces suaves
+/* =========================
+   Luces y referencia
+========================= */
 scene.add(new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.9));
 const dir = new THREE.DirectionalLight(0xffffff, 0.8);
 dir.position.set(3, 5, 2);
 scene.add(dir);
 
-// Suelo muy tenue para referencia (blanco sobre blanco)
+// suelo sutil para referencia
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(10, 10),
   new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 })
@@ -33,25 +48,27 @@ floor.rotation.x = -Math.PI / 2;
 floor.position.y = -0.001;
 scene.add(floor);
 
-// --- Carga del modelo (tu archivo) ---
-const loader = new GLTFLoader();
-const MODEL_PATH = "../assets/rhino1.glb"; // <-- tu ruta y nombre
+/* =========================
+   Carga de modelo (GLB u OBJ)
+========================= */
+const gltfLoader = new GLTFLoader();
+const objLoader  = new OBJLoader();
 
-loadModel(MODEL_PATH).catch(() => {
-  // Placeholder si no se encuentra el modelo
-  const box = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0 })
-  );
-  box.position.y = 0.5;
-  scene.add(box);
-  addOutline(box);
-  frameObject(box);
-});
+// despacha según extensión
+const ext = MODEL_PATH.split(".").pop().toLowerCase();
 
-function loadModel(path) {
+if (ext === "glb" || ext === "gltf") {
+  loadGLB(MODEL_PATH).catch(showPlaceholder);
+} else if (ext === "obj") {
+  loadOBJ(MODEL_PATH).catch(showPlaceholder);
+} else {
+  console.warn("Extensión no reconocida:", ext, "— usando placeholder.");
+  showPlaceholder();
+}
+
+function loadGLB(path) {
   return new Promise((resolve, reject) => {
-    loader.load(
+    gltfLoader.load(
       path,
       (gltf) => {
         const model = gltf.scene;
@@ -70,8 +87,8 @@ function loadModel(path) {
           }
         });
 
-        addOutline(model);  // contorno tenue para distinguir sobre blanco
-        frameObject(model); // centra y encuadra
+        addOutline(model);
+        frameObject(model);
         resolve();
       },
       undefined,
@@ -80,7 +97,35 @@ function loadModel(path) {
   });
 }
 
-// Contorno gris claro
+function loadOBJ(path) {
+  return new Promise((resolve, reject) => {
+    objLoader.load(
+      path,
+      (obj) => {
+        // Material blanco sencillo para todo el OBJ
+        obj.traverse((o) => {
+          if (o.isMesh) {
+            o.material = new THREE.MeshStandardMaterial({
+              color: 0xffffff,
+              roughness: 0.6,
+              metalness: 0
+            });
+          }
+        });
+        scene.add(obj);
+        addOutline(obj);
+        frameObject(obj);
+        resolve();
+      },
+      undefined,
+      (err) => reject(err)
+    );
+  });
+}
+
+/* =========================
+   Utilidades: contorno + encuadre
+========================= */
 function addOutline(target) {
   const edgesColor = new THREE.Color(0xdddddd);
   target.traverse((o) => {
@@ -96,41 +141,45 @@ function addOutline(target) {
   });
 }
 
-// Encuadra la cámara al objeto
 function frameObject(obj) {
   const box = new THREE.Box3().setFromObject(obj);
   const sizeVec = box.getSize(new THREE.Vector3());
-  const size = sizeVec.length();
+  const size = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
   const center = box.getCenter(new THREE.Vector3());
 
   controls.target.copy(center);
 
-  const distance = size * 1.5;
+  const distance = size * 1.6; // un poco más de aire
   const dirVec = new THREE.Vector3(1, 0.8, 1).normalize();
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
 
   camera.near = Math.max(0.01, size / 100);
-  camera.far = Math.max(100, size * 10);
+  camera.far  = Math.max(100, size * 10);
   camera.updateProjectionMatrix();
   controls.update();
 }
 
-// Ajuste al tamaño del panel izquierdo
-function resizeToPane() {
-  const w = pane.clientWidth || 1;
-  const h = pane.clientHeight || 1;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-}
-resizeToPane();
-window.addEventListener("resize", resizeToPane);
+/* =========================
+   Resize robusto (evita “recortes”)
+========================= */
+const ro = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    const cr = entry.contentRect;
+    const w = Math.max(1, cr.width);
+    const h = Math.max(1, cr.height);
+    renderer.setSize(w, h, true);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+});
+ro.observe(pane);
 
-// Loop
+/* =========================
+   Loop
+========================= */
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
 animate();
-
