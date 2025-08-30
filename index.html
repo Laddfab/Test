@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prueba Three.js (local)</title>
-  <style>
-    html, body { margin:0; height:100%; background:#202124; }
-    canvas { display:block; }
-  </style>
-</head>
-<body>
-  <!-- Carga tu script como módulo -->
-  <script type="module" src="js/script3.js"></script>
-</body>
-</html>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./lib/three.js-r161/build/three.module.min.js"
+  }
+}
+</script>
+<script type="module" src="js/script3.js"></script>
