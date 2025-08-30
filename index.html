@@ -3,35 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LADDFAB · 3D + Texto</title>
+  <title>LADDFAB · Split 3D + Texto</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin:0; height:100%; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
     .split {
       position: relative;
       display: grid;
-      grid-template-columns: 1fr 1fr; /* mitad/mitad */
+      grid-template-columns: 1fr 1fr; /* 50/50 */
       width: 100vw; height: 100vh;
     }
+    /* Orden por defecto: texto izquierda, 3D derecha */
+    .left  { order: 1; }
+    .right { order: 2; }
+
+    /* Cambia a 'three-left' si quieres 3D a la izquierda (opcional) */
+    .three-left .left  { order: 2; }
+    .three-left .right { order: 1; }
+
     .left {
-      background: #fff; /* fondo blanco para el 3D */
-      position: relative; overflow: hidden;
+      background: #fff;      /* panel del 3D en blanco */
+      position: relative;
+      overflow: hidden;
     }
     .right {
       background: #fff; color: #111;
-      display: flex; align-items: center; justify-content: center;
-      padding: 6vw;
+      display: flex; flex-direction: column;
+      padding: 6vw 5vw;
+      overflow-y: auto;      /* scroll vertical */
     }
-    .right .wrap { max-width: 520px; }
-    .brand    { font-size: clamp(32px,6vw,56px); font-weight: 700; margin: 0 0 8px; }
-    .subtitle { font-size: clamp(16px,2.2vw,22px); margin: 0; color: #333; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .brand    { font-size: clamp(32px,6vw,56px); font-weight: 700; margin: 0 0 12px; }
+    .subtitle { font-size: clamp(16px,2.2vw,22px); margin: 0 0 18px; color: #333; line-height: 1.4; }
+
     .split::before {
       content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:#e7e7e7;
     }
   </style>
 
-  <!-- Import map: apunta a tu copia local de three -->
+  <!-- Import map a tu copia local de three -->
   <script type="importmap">
   {
     "imports": {
@@ -41,17 +53,36 @@
   </script>
 </head>
 <body>
-  <div class="split">
+  <!-- Usa class="split three-left" si quieres invertir (3D a la izquierda) -->
+  <div class="split" id="splitRoot">
     <div class="left" id="three-pane"></div>
     <div class="right">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
         <p class="subtitle">Laboratorio de fabricación digital</p>
+
+        <!-- Texto extra para probar scroll -->
+        <p>
+          Este es un texto de ejemplo para verificar que el panel de la izquierda (texto) puede
+          desplazarse. Puedes reemplazarlo por tu contenido: descripción de proyectos, servicios,
+          enlaces, etc.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer viverra, massa in rhoncus
+          dignissim, tellus nisi dapibus nisl, a condimentum justo risus a lacus. Curabitur varius
+          gravida lectus, a hendrerit nibh tempus ut. Suspendisse potenti. Etiam venenatis sodales
+          purus, vitae elementum sem.
+        </p>
+        <p>
+          Más contenido de prueba. Repite o edita a gusto para validar el comportamiento con textos
+          largos y distintos tamaños de pantalla.
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- Tu app (script4.js) -->
+  <!-- Tu app -->
   <script type="module" src="js/script4.js"></script>
 </body>
 </html>
+
