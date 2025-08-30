@@ -1,8 +1,57 @@
-<script type="importmap">
-{
-  "imports": {
-    "three": "./lib/three.js-r161/build/three.module.min.js"
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LADDFAB · 3D + Texto</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .split {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* mitad/mitad */
+      width: 100vw; height: 100vh;
+    }
+    .left {
+      background: #fff; /* fondo blanco para el 3D */
+      position: relative; overflow: hidden;
+    }
+    .right {
+      background: #fff; color: #111;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6vw;
+    }
+    .right .wrap { max-width: 520px; }
+    .brand    { font-size: clamp(32px,6vw,56px); font-weight: 700; margin: 0 0 8px; }
+    .subtitle { font-size: clamp(16px,2.2vw,22px); margin: 0; color: #333; }
+    .split::before {
+      content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:#e7e7e7;
+    }
+  </style>
+
+  <!-- Import map: apunta a tu copia local de three -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./lib/three.js-r161/build/three.module.min.js"
+    }
   }
-}
-</script>
-<script type="module" src="js/script3.js"></script>
+  </script>
+</head>
+<body>
+  <div class="split">
+    <div class="left" id="three-pane"></div>
+    <div class="right">
+      <div class="wrap">
+        <h1 class="brand">Laddfab</h1>
+        <p class="subtitle">Laboratorio de fabricación digital</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tu app (script4.js) -->
+  <script type="module" src="js/script4.js"></script>
+</body>
+</html>
