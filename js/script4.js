@@ -12,7 +12,7 @@ const pane = document.getElementById("three-pane");
    Ej: https://.../index.html?model=assets/Test1.glb
 ========================= */
 const params = new URLSearchParams(location.search);
-const MODEL_PATH = params.get("model") || "../assets/rhino1.glb";
+const MODEL_PATH = params.get("model") || "../assets/rhino.obj";
 
 /* =========================
    Escena / cámara / renderer
