@@ -35,7 +35,7 @@ scene.add(floor);
 
 // --- Carga del modelo (tu archivo) ---
 const loader = new GLTFLoader();
-const MODEL_PATH = "../assets/test4.glb"; // <-- tu ruta y nombre
+const MODEL_PATH = "../assets/test5.glb"; // <-- tu ruta y nombre
 
 loadModel(MODEL_PATH).catch(() => {
   // Placeholder si no se encuentra el modelo
