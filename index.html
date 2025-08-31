@@ -3,30 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Split · 3D (izq) + Texto (der)</title>
+  <title>Split · 3D (der) + Texto (izq)</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin:0; height:100%; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    .split { display: grid; grid-template-columns: 1fr 1fr; width: 100vw; height: 100vh; }
-    .col-3d { background:#fff; position:relative; overflow:hidden; }  /* IZQ: 3D sin scroll */
-    .col-text { background:#f5f5f5; color:#111; padding:3vw; overflow-y:auto; } /* DER: scroll */
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: "text three"; /* ← texto izq, 3D der */
+      width: 100vw; height: 100vh;
+    }
+    .col-text { grid-area: text; background:#f5f5f5; color:#111; padding:3vw; overflow-y:auto; }
+    .col-3d  { grid-area: three; background:#fff; position:relative; overflow:hidden; }
+
     .wrap { max-width: 640px; margin: 0 auto; }
     .brand { font-size:clamp(28px,5vw,48px); font-weight:700; margin:0 0 12px; }
     .subtitle { font-size:clamp(16px,2.2vw,20px); margin:0 0 18px; color:#333; line-height:1.4; }
+
+    /* Opcional: responsive */
+    @media (max-width: 900px){
+      .split { grid-template-columns: 1fr; grid-template-areas: "three" "text"; }
+      .col-text { padding: 24px; }
+    }
   </style>
+
+  <!-- Import map: usa tu copia local de three r161 -->
   <script type="importmap">
   { "imports": { "three": "./lib/three.js-r161/build/three.module.min.js" } }
   </script>
 </head>
 <body>
   <div class="split">
+    <!-- OJO: no reordenamos el DOM; el CSS coloca cada columna en su área -->
     <div class="col-3d" id="three-pane"></div>
     <div class="col-text">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
         <p class="subtitle">Laboratorio de fabricación digital</p>
-        <!-- Texto largo para percibir el scroll -->
+
+        <!-- Texto original (7 párrafos) -->
+        <p>Bienvenido. Este panel admite contenido largo y se desplaza en vertical. Aquí puedes colocar descripciones, servicios, enlaces y más.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget magna sed nulla feugiat ultrices. Sed a venenatis odio. Donec blandit, lacus sed feugiat viverra, purus justo varius sapien, id viverra nunc purus ac augue.</p>
+        <p>Suspendisse potenti. Integer nec semper libero, id viverra nibh. Curabitur at tincidunt nulla. Pellentesque facilisis ligula vel nisl pulvinar, ac egestas neque viverra.</p>
+        <p>Morbi feugiat, arcu non tincidunt sagittis, urna ligula imperdiet tortor, ac sodales augue augue non magna. Vivamus malesuada, magna ut iaculis malesuada, nunc nisl ultricies risus, vitae vulputate sem nibh at ipsum.</p>
+        <p>Proin aliquam eros vitae risus maximus, in ultricies orci imperdiet. Sed volutpat, ex id dapibus dignissim, risus est varius risus, in porttitor purus dui nec felis.</p>
+        <p>Aliquam erat volutpat. Fusce nec nibh id est ultricies faucibus. Integer a orci vitae lorem accumsan pulvinar. Etiam congue diam at nisi ultrices.</p>
+        <p>Más contenido de prueba… Repite o edita a gusto para validar el comportamiento con textos largos y distintos tamaños de pantalla.</p>
+
+        <!-- Duplicado (otros 7 párrafos) -->
         <p>Bienvenido. Este panel admite contenido largo y se desplaza en vertical. Aquí puedes colocar descripciones, servicios, enlaces y más.</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget magna sed nulla feugiat ultrices. Sed a venenatis odio. Donec blandit, lacus sed feugiat viverra, purus justo varius sapien, id viverra nunc purus ac augue.</p>
         <p>Suspendisse potenti. Integer nec semper libero, id viverra nibh. Curabitur at tincidunt nulla. Pellentesque facilisis ligula vel nisl pulvinar, ac egestas neque viverra.</p>
@@ -37,6 +63,7 @@
       </div>
     </div>
   </div>
+
   <script type="module" src="js/script4.js"></script>
 </body>
 </html>
