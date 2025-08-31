@@ -29,7 +29,7 @@ var INITIAL_BACKGROUND = "#ffffff";
 /* NOTA: INTENSIDAD DE LUZ DIRECCIONAL INICIAL */
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
 /* NOTA: OPACIDAD INICIAL DEL PANEL (0 = invisible, 1 = opaco) */
-var INITIAL_PANEL_OPACITY = 0.050;
+var INITIAL_PANEL_OPACITY = 0.00;
 /* NOTA: DESPLAZAMIENTOS EN EL ENCUADRE (proporción respecto al tamaño del modelo) */
 var FRAME_OFFSET = { x: 0.90, y: -0.20, z: 0.50 }; // 0 = centrado; 0.25 desplaza hacia la DERECHA
 /* =========================================== */
