@@ -9,7 +9,7 @@ import { OBJLoader }    from "../lib/three.js-r161/jsm/loaders/OBJLoader.js";
    - Default: assets/rhino.obj
 ========================= */
 const params = new URLSearchParams(location.search);
-const MODEL_PARAM = params.get("model") || "assets/rhino.obj"; // <-- SIN "../" (importante en GitHub Pages)
+const MODEL_PARAM = params.get("model") || "assets/rhino1.glb"; // <-- SIN "../" (importante en GitHub Pages)
 
 /* =========================
    Escena / cámara / renderer
