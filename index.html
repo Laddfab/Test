@@ -22,13 +22,13 @@
       /* ======================================================= */
     }
 
-    /* 3D de fondo (el canvas va dentro) */
+    /* 3D de fondo (el canvas va dentro) — DESKTOP */
     #three-bg {
       position: fixed; inset: 0; z-index: 0;
       pointer-events: auto; /* Permitir interacción del 3D fuera del panel */
     }
 
-    /* Capa de contenido encima del 3D */
+    /* Capa de contenido encima del 3D — DESKTOP */
     .page {
       position: relative; z-index: 1;
       min-height: 100vh;
@@ -36,13 +36,12 @@
       pointer-events: none; /* CLAVE: no interceptar eventos fuera del panel */
     }
 
-    /* Panel IZQUIERDO (vidrio pavonado) */
+    /* Panel IZQUIERDO (vidrio pavonado) — DESKTOP */
     .panel-left {
       width: 50vw;
       padding: clamp(16px, 3vw, 36px);
       color: #111;
 
-      /* por defecto: vidrio visible (cuando --panel-bg-a > 0) */
       background: rgba(var(--panel-bg-r), var(--panel-bg-g), var(--panel-bg-b), var(--panel-bg-a));
       backdrop-filter: blur(10px) saturate(1.1);
       -webkit-backdrop-filter: blur(10px) saturate(1.1);
@@ -65,14 +64,42 @@
     .brand { font-size:clamp(28px,5vw,48px); font-weight:700; margin:0 0 12px; }
     .subtitle { font-size:clamp(16px,2.2vw,20px); margin:0 0 18px; color:#333; line-height:1.4; }
 
-    /* Zona derecha: deja ver el 3D y NO bloquea eventos */
+    /* Zona derecha: deja ver el 3D y NO bloquea eventos — DESKTOP */
     .spacer-right { flex: 1 1 auto; pointer-events: none; }
 
-    /* Móvil: solo el panel capta eventos */
+    /* ========== MÓVIL: 3D ARRIBA (SÓLIDO) + TEXTO ABAJO ========== */
     @media (max-width: 900px){
-      .page { display:block; pointer-events: none; }
-      .panel-left { width: 100vw; border-right: none; pointer-events: auto; }
+      /* El 3D deja de ser fondo de toda la pantalla y pasa a ser un bloque superior */
+      #three-bg {
+        position: relative; /* deja de ser fixed */
+        inset: auto;
+        z-index: 0;
+        width: 100%;
+        height: 52vh;        /* altura visible del 3D arriba */
+        pointer-events: auto;/* puedes orbitar en el área del 3D */
+        display: block;
+      }
+
+      /* La capa de contenido ya no flota sobre el 3D completo; va DEBAJO del 3D */
+      .page {
+        display: block;
+        pointer-events: none; /* se hereda la lógica: solo el panel captura */
+      }
+
+      /* El panel ocupa TODO el ancho y es SÓLIDO (sin blur) en móvil */
+      .panel-left {
+        width: 100vw;
+        border-right: none;
+        pointer-events: auto;
+
+        background: #ffffff;              /* sólido */
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+      }
+
       .wrap { max-width: 640px; }
+      .spacer-right { display: none; }    /* ya no necesitamos “lado derecho” */
     }
 
     /* Overlay de CARGA */
@@ -100,7 +127,7 @@
 </head>
 <body>
 
-  <!-- 3D de fondo (el renderer se inyecta aquí) -->
+  <!-- 3D: en desktop es fondo full-screen; en móvil es bloque superior (52vh) -->
   <div id="three-bg"></div>
 
   <!-- Overlay de CARGA -->
@@ -110,45 +137,39 @@
     <div style="opacity:.7; font-size:12px">Laddfab · 3D</div>
   </div>
 
-  <!-- Panel IZQUIERDO (vidrio) + espacio DERECHA -->
+  <!-- Panel IZQUIERDO (vidrio en desktop / sólido en móvil) -->
   <main class="page">
     <section class="panel-left" id="panel-left">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
-        <p class="subtitle">Laboratorio de fabricación digitalfff60</p>
+        <p class="subtitle">Laboratorio de fabricación digital</p>
 
         <h2>Introducción</h2>
-        <p>Panel vidrio pavonado a la izquierda; el 3D se renderiza detrás y puedes manipularlo en la zona derecha. Este texto es largo para validar el scroll del navegador.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac urna non nunc ornare elementum. Integer sagittis sem sem, a dapibus lectus vestibulum nec. Sed ac congue ante. Maecenas dictum pharetra erat, eget pulvinar magna fermentum sit amet.</p>
-        <p>Sed eget consequat nisi, vitae placerat orci. Praesent facilisis, arcu non rhoncus scelerisque, elit justo pulvinar ipsum, sit amet semper metus mauris ut velit. Mauris dignissim varius placerat. Etiam nec mi nec velit gravida tristique. Nulla facilisi.</p>
+        <p>En desktop: 3D de fondo y panel vidrio a la izquierda. En móvil: 3D arriba (bloque sólido) y texto abajo.</p>
 
         <h2>Servicios</h2>
-        <p>In fermentum, neque a ultricies dignissim, elit nunc posuere mi, et aliquet nisl magna at mi. Suspendisse potenti. Integer finibus magna id neque volutpat sagittis. Curabitur ultrices volutpat mi, a posuere odio interdum nec.</p>
-        <p>Phasellus ut elit at lacus tempus tincidunt. Pellentesque nec mattis odio. Integer venenatis dui sit amet tortor lacinia aliquet. Donec fringilla id metus ut euismod.</p>
+        <p>Contenido de ejemplo para probar el flujo de scroll y la lectura.</p>
 
         <h2>Proyectos</h2>
-        <p>Vivamus ut turpis id turpis facilisis congue. Pellentesque interdum tortor et ante ullamcorper, vel viverra ipsum ultricies. Sed cursus eros ut dui viverra, eget congue eros bibendum.</p>
-        <p>Curabitur venenatis arcu at dignissim fringilla. Ut sed nibh id eros tristique gravida. Integer luctus congue lectus a commodo. Integer iaculis efficitur felis.</p>
-
-        <h2>Más información</h2>
-        <p>Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo.</p>
-        <p>Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo. Repetición para probar scroll largo.</p>
+        <p>Más texto de ejemplo para forzar el scroll en pantallas pequeñas.</p>
 
         <h2>FAQ</h2>
-        <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Integer tempor mi id dui maximus, et dignissim dolor venenatis. Nulla aliquet, massa in vulputate pharetra.</p>
-        <p>Maecenas quis varius turpis. Sed dignissim lacus non bibendum mattis. Duis imperdiet dui vel turpis efficitur, vitae sollicitudin lorem pulvinar.</p>
+        <p>Preguntas y respuestas de muestra. Repite o reemplaza por contenido real.</p>
 
         <h2>Contacto</h2>
-        <p>El scroll es del navegador; el 3D permanece fijo detrás. En escritorio, manipula el 3D en la zona derecha; en móvil, el panel ocupa todo el ancho.</p>
+        <p>En escritorio manipula el 3D en la zona derecha; en móvil, manipula el 3D en el bloque superior.</p>
       </div>
     </section>
+
+    <!-- En desktop, este espacio deja ver el 3D a la derecha y permite interacción.
+         En móvil se oculta. -->
     <div class="spacer-right" aria-hidden="true"></div>
   </main>
 
   <!-- lil-gui (global 'lil') -->
   <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.20"></script>
 
-  <!-- Módulo 3D -->
+  <!-- Módulo 3D (sin cambios) -->
   <script type="module" src="js/script6.js"></script>
 </body>
 </html>
