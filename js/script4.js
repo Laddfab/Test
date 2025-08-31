@@ -8,12 +8,14 @@ const q = new URLSearchParams(location.search);
 const MODEL = q.get("model") || "assets/rhino.obj"; // cambia aquí o usa ?model=assets/Test1.glb
 
 const scene = new THREE.Scene();
+
 const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
 camera.position.set(2.5, 2, 4);
 
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setClearColor(0xffffff, 1);
+renderer.outputColorSpace = THREE.SRGBColorSpace; // r161
 pane.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -52,6 +54,7 @@ function loadModel(pathStr){
   });
 }
 
+// Fix: no copiar transforms al añadir el contorno (el hijo hereda las del padre)
 function addOutline(target){
   const edgesColor = new THREE.Color(0xdddddd);
   target.traverse(o => {
@@ -59,7 +62,6 @@ function addOutline(target){
       const geo = new THREE.EdgesGeometry(o.geometry, 60);
       const mat = new THREE.LineBasicMaterial({ color: edgesColor });
       const lines = new THREE.LineSegments(geo, mat);
-      lines.position.copy(o.position); lines.rotation.copy(o.rotation); lines.scale.copy(o.scale);
       o.add(lines);
     }
   });
@@ -74,8 +76,10 @@ function frameObject(obj){
   const distance = maxDim * 1.6;
   const dirVec = new THREE.Vector3(1, 0.8, 1).normalize();
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
-  camera.near = Math.max(0.01, maxDim/100); camera.far = Math.max(100, maxDim*10);
-  camera.updateProjectionMatrix(); controls.update();
+  camera.near = Math.max(0.01, maxDim/100);
+  camera.far  = Math.max(100,  maxDim*10);
+  camera.updateProjectionMatrix();
+  controls.update();
 }
 
 const ro = new ResizeObserver(entries => {
@@ -91,4 +95,3 @@ ro.observe(pane);
 
 function animate(){ requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
 animate();
-
