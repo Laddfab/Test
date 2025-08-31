@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "../lib/three.js-r161/jsm/controls/OrbitControls.js";
 import { OBJLoader }  from "../lib/three.js-r161/jsm/loaders/OBJLoader.js";
 
-// ====== Escena básica ======
+// === Escena básica pantalla completa ===
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
 camera.position.set(2.5, 2, 4);
@@ -10,53 +10,45 @@ camera.position.set(2.5, 2, 4);
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.setClearColor(0xffffff, 1); // fondo blanco para apreciar el modelo
+renderer.setClearColor(0xffffff, 1); // fondo blanco
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Luz suave (por si usas materiales con shading)
-const hemi = new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.9);
-scene.add(hemi);
+// Luces suaves
+scene.add(new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.9));
 const dir = new THREE.DirectionalLight(0xffffff, 0.8);
 dir.position.set(3, 5, 2);
 scene.add(dir);
 
-// ====== Cargar OBJ ======
-const OBJ_PATH = "../assets/rhino.obj"; // <-- ajusta si tu ruta/nombre cambia
+// === Cargar tu OBJ ===
+const OBJ_PATH = "../assets/rhino.obj"; // ajusta si tu ruta/nombre cambia
 const loader = new OBJLoader();
 
 loader.load(
   OBJ_PATH,
   (obj) => {
-    // Asegura que se vea SIEMPRE: material por normales (no requiere luces)
+    // Material visible siempre (normales) — si prefieres blanco mate, cambia abajo
     obj.traverse((o) => {
       if (o.isMesh) {
-        o.material = new THREE.MeshNormalMaterial(); // colores por normales
-        o.castShadow = false;
-        o.receiveShadow = false;
+        o.material = new THREE.MeshNormalMaterial();
       }
     });
-
     scene.add(obj);
-    addOutline(obj);   // contorno tenue para fondo blanco
-    frameObject(obj);  // encuadre de cámara
+    addOutline(obj);
+    frameObject(obj);
   },
   undefined,
   (err) => {
     console.error("Error cargando OBJ:", err);
-    // Placeholder si falla
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(1,1,1),
-      new THREE.MeshNormalMaterial()
-    );
+    const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshNormalMaterial());
     scene.add(box);
     frameObject(box);
   }
 );
 
-// ====== Utilidades ======
+// — Utilidades —
 function addOutline(target){
   const edgesColor = new THREE.Color(0xdddddd);
   target.traverse((o) => {
@@ -90,14 +82,14 @@ function frameObject(obj){
   controls.update();
 }
 
-// ====== Resize ======
+// Resize
 addEventListener("resize", () => {
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
 
-// ====== Loop ======
+// Loop
 function animate(){
   requestAnimationFrame(animate);
   controls.update();
@@ -105,3 +97,7 @@ function animate(){
 }
 animate();
 
+/* Si prefieres el modelo BLANCO mate:
+   - Reemplaza MeshNormalMaterial por:
+     o.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0 });
+*/
