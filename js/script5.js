@@ -1,3 +1,4 @@
+// js/script5.js
 import * as THREE from "three";
 import { OrbitControls } from "../lib/three.js-r161/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "../lib/three.js-r161/jsm/loaders/GLTFLoader.js";
@@ -8,60 +9,78 @@ import { RenderPass } from "../lib/three.js-r161/jsm/postprocessing/RenderPass.j
 import { UnrealBloomPass } from "../lib/three.js-r161/jsm/postprocessing/UnrealBloomPass.js";
 
 // ==== CONFIG ====
-let FOG_TYPE = "linear";          // 'linear' | 'exp' | 'none' (se cambia desde GUI)
-const BACKGROUND_COLOR = "#d60000";
-const ENABLE_SHADOWS = true;
-const FOG_ON = true;
-const FOG_LINEAR = { near: 8, far: 55 };
-const FOG_EXP = { density: 0.03 };
-const AUTO_ROTATION = true;
-const ROTATION_SPEED = 0.005;
+// NOTA: FOG_TYPE puede ser "linear" | "exp" | "none"
+var FOG_TYPE = "linear";
+var ENABLE_SHADOWS = true;
+var FOG_ON = true;
+var FOG_LINEAR = { near: 8, far: 55 };
+var FOG_EXP = { density: 0.03 };
+var AUTO_ROTATION = true;
+var ROTATION_SPEED = 0.005;
 
-// ==== INIT ====
-const pane = document.getElementById("three-pane");
-const q = new URLSearchParams(location.search);
-const MODEL = q.get("model") || "assets/rhino.obj";
+// ===== VALORES INICIALES (EDITAR AQUÍ) =====
+// NOTA: EXPOSURE INICIAL
+var INITIAL_EXPOSURE = 0.6;
+// NOTA: BLOOM INICIAL
+var INITIAL_BLOOM_STRENGTH = 0.12;
+// NOTA: COLOR DE FONDO INICIAL
+var INITIAL_BACKGROUND = "#ffffff";
+// NOTA: INTENSIDAD DE LUZ DIRECCIONAL INICIAL
+var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
+// ===========================================
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(BACKGROUND_COLOR);
+var pane = document.getElementById("three-pane");
+var q = new URLSearchParams(location.search);
+var MODEL = q.get("model") || "assets/rhino.obj";
+
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(INITIAL_BACKGROUND);
 
 // Fog
 function applyFog() {
-  const bgHex = scene.background?.getHex?.() ?? 0x000000;
-  if (!FOG_ON || FOG_TYPE === "none") { scene.fog = null; return; }
-  scene.fog = (FOG_TYPE === "exp")
-    ? new THREE.FogExp2(bgHex, FOG_EXP.density)
-    : new THREE.Fog(bgHex, FOG_LINEAR.near, FOG_LINEAR.far);
+  if (!FOG_ON || FOG_TYPE === "none") {
+    scene.fog = null;
+    return;
+  }
+  var bgHex = scene.background instanceof THREE.Color ? scene.background.getHex() : 0x000000;
+  if (FOG_TYPE === "exp") {
+    scene.fog = new THREE.FogExp2(bgHex, FOG_EXP.density);
+  } else {
+    scene.fog = new THREE.Fog(bgHex, FOG_LINEAR.near, FOG_LINEAR.far);
+  }
 }
 applyFog();
 
 // Camera
-const camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
+var camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
 camera.position.set(2.5, 2, 1);
 
 // Renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.6; // <- bajado para menos brillo inicial
+// APLICA EXPOSURE INICIAL (EDITAR ARRIBA)
+renderer.toneMappingExposure = INITIAL_EXPOSURE;
+
 renderer.shadowMap.enabled = ENABLE_SHADOWS;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 pane.appendChild(renderer.domElement);
 
 // Postprocessing (Bloom)
-const composer = new EffectComposer(renderer);
+var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.3, // strength más bajo
+var bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(1, 1),
+  // APLICA BLOOM INICIAL (EDITAR ARRIBA)
+  INITIAL_BLOOM_STRENGTH, // strength
   0.2, // radius
   0.9  // threshold
 );
 composer.addPass(bloomPass);
 
 // Controls
-const controls = new OrbitControls(camera, renderer.domElement);
+var controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.autoRotate = AUTO_ROTATION;
 controls.autoRotateSpeed = ROTATION_SPEED * 60;
@@ -69,11 +88,11 @@ controls.minDistance = 0.05;
 controls.maxDistance = 500;
 
 // Lights
-const hemi = new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.8);
+var hemi = new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.8);
 hemi.position.set(0, 20, 0);
 scene.add(hemi);
 
-const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+var dir = new THREE.DirectionalLight(0xffffff, INITIAL_DIR_LIGHT_INTENSITY); // APLICA DIR LIGHT INICIAL (EDITAR ARRIBA)
 dir.position.set(6, 10, 6);
 dir.castShadow = ENABLE_SHADOWS;
 dir.shadow.mapSize.set(2048, 2048);
@@ -85,8 +104,8 @@ dir.shadow.camera.near = 1;
 dir.shadow.camera.far = 80;
 scene.add(dir);
 
-// Ground
-const ground = new THREE.Mesh(
+// Ground (shadow catcher)
+var ground = new THREE.Mesh(
   new THREE.PlaneGeometry(400, 400),
   new THREE.ShadowMaterial({ opacity: 0.35 })
 );
@@ -95,18 +114,26 @@ ground.receiveShadow = ENABLE_SHADOWS;
 scene.add(ground);
 
 // HDRI
-new RGBELoader().load("assets/venice_sunset_4k.hdr", (hdr) => {
-  hdr.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = hdr;
-});
+var rgbeLoader = new RGBELoader();
+rgbeLoader.load(
+  "assets/venice_sunset_4k.hdr",
+  function (hdr) {
+    hdr.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = hdr;
+  },
+  undefined,
+  function (err) {
+    console.warn("HDRI no cargado:", err);
+  }
+);
 
 // Loaders
-const gltfLoader = new GLTFLoader();
-const objLoader = new OBJLoader();
+var gltfLoader = new GLTFLoader();
+var objLoader = new OBJLoader();
 
-loadModel(MODEL).catch((err) => {
+loadModel(MODEL).catch(function (err) {
   console.warn("Modelo no cargado:", err);
-  const box = new THREE.Mesh(
+  var box = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.6, metalness: 0.05 })
   );
@@ -118,45 +145,63 @@ loadModel(MODEL).catch((err) => {
 });
 
 function loadModel(path) {
-  return new Promise((resolve, reject) => {
-    const ext = path.split('.').pop().toLowerCase();
-    if (["glb", "gltf"].includes(ext)) {
-      gltfLoader.load(path, (gltf) => {
-        const model = gltf.scene;
-        scene.add(model);
-        enableModelShadows(model);
-        addOutline(model);
-        frameObject(model, 1.15);
-        repositionGroundToModel(model);
-        resolve();
-      }, undefined, reject);
-    } else if (ext === "obj") {
-      const base = path.substring(0, path.lastIndexOf("/") + 1);
-      const file = path.split("/").pop();
-      objLoader.setPath(base).load(file, (obj) => {
-        obj.traverse((o) => {
-          if (o.isMesh) {
-            o.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.05 });
-            o.castShadow = o.receiveShadow = ENABLE_SHADOWS;
-          }
-        });
-        scene.add(obj);
-        addOutline(obj);
-        frameObject(obj, 1.12);
-        repositionGroundToModel(obj);
-        resolve();
-      }, undefined, reject);
-    } else {
-      reject(new Error("Formato no soportado: " + ext));
+  return new Promise(function (resolve, reject) {
+    var ext = path.split(".").pop().toLowerCase();
+    if (ext === "glb" || ext === "gltf") {
+      gltfLoader.load(
+        path,
+        function (gltf) {
+          var model = gltf.scene;
+          scene.add(model);
+          enableModelShadows(model);
+          addOutline(model);
+          frameObject(model, 1.15);
+          repositionGroundToModel(model);
+          resolve();
+        },
+        undefined,
+        function (e) {
+          reject(e);
+        }
+      );
+      return;
     }
+    if (ext === "obj") {
+      var base = path.substring(0, path.lastIndexOf("/") + 1);
+      var file = path.split("/").pop();
+      objLoader.setPath(base).load(
+        file,
+        function (obj) {
+          obj.traverse(function (o) {
+            if (o && o.isMesh) {
+              o.material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.05 });
+              o.castShadow = ENABLE_SHADOWS;
+              o.receiveShadow = ENABLE_SHADOWS;
+            }
+          });
+          scene.add(obj);
+          addOutline(obj);
+          frameObject(obj, 1.12);
+          repositionGroundToModel(obj);
+          resolve();
+        },
+        undefined,
+        function (e) {
+          reject(e);
+        }
+      );
+      return;
+    }
+    reject(new Error("Formato no soportado: " + ext));
   });
 }
 
 function enableModelShadows(root) {
-  root.traverse((o) => {
-    if (o.isMesh) {
-      o.castShadow = o.receiveShadow = ENABLE_SHADOWS;
-      if (o.material?.map) {
+  root.traverse(function (o) {
+    if (o && o.isMesh) {
+      o.castShadow = ENABLE_SHADOWS;
+      o.receiveShadow = ENABLE_SHADOWS;
+      if (o.material && o.material.map) {
         o.material.map.colorSpace = THREE.SRGBColorSpace;
       }
     }
@@ -164,53 +209,62 @@ function enableModelShadows(root) {
 }
 
 function addOutline(target) {
-  const color = new THREE.Color(0xdddddd);
-  target.traverse((o) => {
-    if (o.isMesh && o.geometry) {
-      const edges = new THREE.EdgesGeometry(o.geometry, 60);
-      const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color }));
+  var color = new THREE.Color(0xdddddd);
+  target.traverse(function (o) {
+    if (o && o.isMesh && o.geometry) {
+      var edges = new THREE.EdgesGeometry(o.geometry, 60);
+      var lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: color }));
       lines.renderOrder = 2;
       o.add(lines);
     }
   });
 }
 
-function frameObject(obj, offset = 1.15) {
-  const box = new THREE.Box3().setFromObject(obj);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
+function frameObject(obj, offset) {
+  if (offset == null) offset = 1.15;
+  var box = new THREE.Box3().setFromObject(obj);
+  var size = box.getSize(new THREE.Vector3());
+  var center = box.getCenter(new THREE.Vector3());
   controls.target.copy(center);
 
-  const fov = THREE.MathUtils.degToRad(camera.fov);
-  const distY = (size.y / 2) / Math.tan(fov / 2);
-  const distX = (size.x / 2) / (Math.tan(fov / 2) * camera.aspect);
-  const distance = offset * Math.max(distY, distX);
+  var fov = THREE.MathUtils.degToRad(camera.fov);
+  var distY = (size.y / 2) / Math.tan(fov / 2);
+  var distX = (size.x / 2) / (Math.tan(fov / 2) * camera.aspect);
+  var distance = offset * Math.max(distY, distX);
 
-  const dirVec = new THREE.Vector3(1, 0.8, 1).normalize();
+  var dirVec = new THREE.Vector3(1, 0.8, 1).normalize();
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
 
   camera.near = Math.max(0.01, distance / 100);
-  camera.far  = Math.max(150, distance * 10);
+  camera.far = Math.max(150, distance * 10);
   camera.updateProjectionMatrix();
   controls.update();
 }
 
 function repositionGroundToModel(obj) {
-  const minY = new THREE.Box3().setFromObject(obj).min.y;
+  var minY = new THREE.Box3().setFromObject(obj).min.y;
   ground.position.y = minY - 0.001;
 }
 
-// Resize al contenedor sticky
-const ro = new ResizeObserver(([entry]) => {
-  const { width, height } = entry.contentRect;
-  renderer.setSize(width, height);
-  composer.setSize(width, height);
-  camera.aspect = width / height;
+// ===== Resize =====
+function resizeToPane() {
+  var rect = pane.getBoundingClientRect();
+  var w = Math.max(1, Math.floor(rect.width));
+  var h = Math.max(1, Math.floor(rect.height));
+  renderer.setSize(w, h, true);
+  composer.setSize(w, h);
+  bloomPass.setSize(w, h);
+  camera.aspect = w / h;
   camera.updateProjectionMatrix();
+}
+resizeToPane();
+
+var ro = new ResizeObserver(function () {
+  resizeToPane();
 });
 ro.observe(pane);
 
-// Loop
+// ===== Loop =====
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
@@ -218,18 +272,37 @@ function animate() {
 }
 animate();
 
-// ==== GUI ====
-const gui = new lil.GUI();
-const params = {
-  exposure: renderer.toneMappingExposure,
-  bloomStrength: bloomPass.strength,
-  directionalLight: dir.intensity,
-  background: scene.background.getStyle?.() ?? BACKGROUND_COLOR,
-  fogType: FOG_TYPE
-};
+// ===== GUI =====
+try {
+  var gui = new lil.GUI();
+  var bgStyle = scene.background instanceof THREE.Color ? scene.background.getStyle() : INITIAL_BACKGROUND;
 
-gui.add(params, 'exposure', 0.1, 2).name('Exposure').onChange(v => renderer.toneMappingExposure = v);
-gui.add(params, 'bloomStrength', 0, 2).name('Bloom').onChange(v => bloomPass.strength = v);
-gui.add(params, 'directionalLight', 0, 2).name('Dir Light').onChange(v => dir.intensity = v);
-gui.addColor(params, 'background').name('Fondo').onChange(v => { scene.background = new THREE.Color(v); applyFog(); });
-gui.add(params, 'fogType', ['none', 'linear', 'exp']).name('Fog').onChange(v => { FOG_TYPE = v; applyFog(); });
+  var params = {
+    // Estos valores iniciales coinciden con los que aplicamos arriba
+    exposure: INITIAL_EXPOSURE,
+    bloomStrength: INITIAL_BLOOM_STRENGTH,
+    directionalLight: INITIAL_DIR_LIGHT_INTENSITY,
+    background: bgStyle,
+    fogType: FOG_TYPE
+  };
+
+  gui.add(params, "exposure", 0.1, 2).name("Exposure").onChange(function (v) {
+    renderer.toneMappingExposure = v;
+  });
+  gui.add(params, "bloomStrength", 0, 2).name("Bloom").onChange(function (v) {
+    bloomPass.strength = v;
+  });
+  gui.add(params, "directionalLight", 0, 2).name("Dir Light").onChange(function (v) {
+    dir.intensity = v;
+  });
+  gui.addColor(params, "background").name("Fondo").onChange(function (v) {
+    scene.background = new THREE.Color(v);
+    applyFog();
+  });
+  gui.add(params, "fogType", ["none", "linear", "exp"]).name("Fog").onChange(function (v) {
+    FOG_TYPE = v;
+    applyFog();
+  });
+} catch (e) {
+  console.warn("lil-gui no disponible:", e);
+}
