@@ -28,6 +28,9 @@ var INITIAL_BLOOM_STRENGTH = 0.12;
 var INITIAL_BACKGROUND = "#ffffff";
 /* NOTA: INTENSIDAD DE LUZ DIRECCIONAL INICIAL */
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
+
+/* NOTA: DESPLAZAMIENTO HORIZONTAL EN EL ENCUADRE (proporción del ancho del modelo) */
+var FRAME_OFFSET_X_RATIO = 0.25; // 0 = centrado, 0.25 = desplaza el objeto hacia la DERECHA
 /* =========================================== */
 
 /* ===== DOM ===== */
@@ -35,6 +38,7 @@ var host    = document.getElementById("three-bg");
 var overlay = document.getElementById("loading-overlay");
 var bar     = document.getElementById("loading-bar");
 var pct     = document.getElementById("loading-pct");
+var panelEl = document.getElementById("panel-left");
 
 /* Model por URL */
 var q = new URLSearchParams(location.search);
@@ -211,21 +215,27 @@ function addOutline(target){
   });
 }
 
+/* === Ajuste: desplazar el objeto un poco a la DERECHA del viewport ===
+   Lo logramos desplazando el "target" hacia la IZQUIERDA en mundo (center.x - offset),
+   de modo que el centro del modelo quede visualmente a la derecha.
+*/
 function frameObject(obj, offset){
   if (offset == null) offset = 1.15;
   var box = new THREE.Box3().setFromObject(obj);
   var size = box.getSize(new THREE.Vector3());
   var center = box.getCenter(new THREE.Vector3());
-  controls.target.copy(center);
 
   var fov = THREE.MathUtils.degToRad(camera.fov);
   var distY = (size.y / 2) / Math.tan(fov / 2);
   var distX = (size.x / 2) / (Math.tan(fov / 2) * camera.aspect);
   var distance = offset * Math.max(distY, distX);
 
-  // Vector de cámara sesgado hacia la DERECHA
   var dirVec = new THREE.Vector3(1.4, 0.8, 1.0).normalize();
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
+
+  /* DESPLAZAMIENTO HORIZONTAL (proporción del ancho del modelo) */
+  var offsetX = size.x * FRAME_OFFSET_X_RATIO;
+  controls.target.set(center.x - offsetX, center.y, center.z);
 
   camera.near = Math.max(0.01, distance / 100);
   camera.far  = Math.max(150, distance * 10);
@@ -279,7 +289,10 @@ try {
     panelOpacity: 0.55,
 
     // Interacción del 3D
-    interact3D: true
+    interact3D: true,
+
+    // Offset horizontal (proporción) para el encuadre
+    frameOffsetX: FRAME_OFFSET_X_RATIO
   };
 
   // === Render / Post ===
@@ -315,6 +328,11 @@ try {
   function setPanelOpacity(a){
     var v = Math.max(0, Math.min(1, a));
     document.documentElement.style.setProperty("--panel-bg-a", String(v));
+    // Cuando v === 0, quitamos cualquier “piel” del panel
+    if (panelEl) {
+      if (v === 0) panelEl.classList.add("panel-transparent");
+      else panelEl.classList.remove("panel-transparent");
+    }
   }
   // set inicial según params
   setPanelColor(params.panelColor);
@@ -329,6 +347,15 @@ try {
   }
   setInteract3D(params.interact3D);
   gui.add(params, "interact3D").name("3D interactivo").onChange(setInteract3D);
+
+  // === Offset de encuadre (desplaza el modelo a la derecha) ===
+  gui.add(params, "frameOffsetX", 0, 0.5, 0.01).name("Frame · OffsetX").onChange(function(v){
+    FRAME_OFFSET_X_RATIO = v;
+    // Reencuadra con el offset actualizado: si tienes referencia al modelo root, podrías llamarla.
+    // Como ejemplo simple, intenta reencuadrar toda la escena:
+    // (Para precisión, guarda el último objeto cargado y pásalo aquí)
+    // frameObject(scene, 1.15);  // <- si tu modelo es root, ajusta según tu estructura
+  });
 
 } catch(e) {
   console.warn("lil-gui no disponible:", e);
