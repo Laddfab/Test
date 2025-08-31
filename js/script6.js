@@ -30,7 +30,7 @@ var INITIAL_BACKGROUND = "#ffffff";
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
 
 /* NOTA: DESPLAZAMIENTOS EN EL ENCUADRE (proporción respecto al tamaño del modelo) */
-var FRAME_OFFSET = { x: 0.25, y: 0.0, z: 0.0 }; // 0 = centrado; 0.25 desplaza hacia la DERECHA
+var FRAME_OFFSET = { x: 0.90, y: 0.0, z: 0.0 }; // 0 = centrado; 0.25 desplaza hacia la DERECHA
 /* =========================================== */
 
 /* ===== DOM ===== */
