@@ -9,41 +9,49 @@
     html, body { margin:0; height:100%; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 
+    /* Desktop: texto izq | 3D der */
     .split {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-areas: "text three"; /* ← texto izq, 3D der */
-      width: 100vw; height: 100vh;
+      grid-template-areas: "text three";
+      width: 100%;
+      height: auto; /* <-- la página es la que scrollea (scrollbar a la derecha) */
     }
-    .col-text { grid-area: text; background:#f5f5f5; color:#111; padding:3vw; overflow-y:auto; }
-    .col-3d  { grid-area: three; background:#fff; position:relative; overflow:hidden; }
+    .col-text { grid-area: text; background:#f5f5f5; color:#111; padding:3vw; /* sin overflow interno */ }
+    .col-3d  { grid-area: three; background:#fff; position: sticky; top: 0; height: 100vh; overflow: hidden; }
 
     .wrap { max-width: 640px; margin: 0 auto; }
     .brand { font-size:clamp(28px,5vw,48px); font-weight:700; margin:0 0 12px; }
     .subtitle { font-size:clamp(16px,2.2vw,20px); margin:0 0 18px; color:#333; line-height:1.4; }
 
-    /* Opcional: responsive */
+    /* Móvil: 3D arriba | texto abajo */
     @media (max-width: 900px){
-      .split { grid-template-columns: 1fr; grid-template-areas: "three" "text"; }
+      .split {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "three"
+          "text";
+      }
+      .col-3d  { position: static; height: auto; } /* quita sticky en móvil */
       .col-text { padding: 24px; }
     }
   </style>
 
-  <!-- Import map: usa tu copia local de three r161 -->
+  <!-- Import map local (mantén tu estructura /lib/three.js-r161/...) -->
   <script type="importmap">
   { "imports": { "three": "./lib/three.js-r161/build/three.module.min.js" } }
   </script>
 </head>
 <body>
   <div class="split">
-    <!-- OJO: no reordenamos el DOM; el CSS coloca cada columna en su área -->
+    <!-- El CSS coloca cada columna en su área -->
     <div class="col-3d" id="three-pane"></div>
     <div class="col-text">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
         <p class="subtitle">Laboratorio de fabricación digital</p>
 
-        <!-- Texto original (7 párrafos) -->
+        <!-- Texto original -->
         <p>Bienvenido. Este panel admite contenido largo y se desplaza en vertical. Aquí puedes colocar descripciones, servicios, enlaces y más.</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget magna sed nulla feugiat ultrices. Sed a venenatis odio. Donec blandit, lacus sed feugiat viverra, purus justo varius sapien, id viverra nunc purus ac augue.</p>
         <p>Suspendisse potenti. Integer nec semper libero, id viverra nibh. Curabitur at tincidunt nulla. Pellentesque facilisis ligula vel nisl pulvinar, ac egestas neque viverra.</p>
@@ -52,7 +60,7 @@
         <p>Aliquam erat volutpat. Fusce nec nibh id est ultricies faucibus. Integer a orci vitae lorem accumsan pulvinar. Etiam congue diam at nisi ultrices.</p>
         <p>Más contenido de prueba… Repite o edita a gusto para validar el comportamiento con textos largos y distintos tamaños de pantalla.</p>
 
-        <!-- Duplicado (otros 7 párrafos) -->
+        <!-- Duplicado -->
         <p>Bienvenido. Este panel admite contenido largo y se desplaza en vertical. Aquí puedes colocar descripciones, servicios, enlaces y más.</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget magna sed nulla feugiat ultrices. Sed a venenatis odio. Donec blandit, lacus sed feugiat viverra, purus justo varius sapien, id viverra nunc purus ac augue.</p>
         <p>Suspendisse potenti. Integer nec semper libero, id viverra nibh. Curabitur at tincidunt nulla. Pellentesque facilisis ligula vel nisl pulvinar, ac egestas neque viverra.</p>
@@ -64,7 +72,7 @@
     </div>
   </div>
 
+  <!-- Tu lógica 3D -->
   <script type="module" src="js/script4.js"></script>
 </body>
 </html>
-
