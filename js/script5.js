@@ -1,4 +1,3 @@
-// js/script5.js
 import * as THREE from "three";
 import { OrbitControls } from "../lib/three.js-r161/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "../lib/three.js-r161/jsm/loaders/GLTFLoader.js";
@@ -77,12 +76,15 @@ const dir = new THREE.DirectionalLight(0xffffff, 1.2);
 dir.position.set(6, 10, 6);
 dir.castShadow = ENABLE_SHADOWS;
 dir.shadow.mapSize.set(2048, 2048);
+
+// ✅ Corrección aquí: configurar cámara manualmente
 dir.shadow.camera.left = -20;
 dir.shadow.camera.right = 20;
 dir.shadow.camera.top = 20;
 dir.shadow.camera.bottom = -20;
 dir.shadow.camera.near = 1;
 dir.shadow.camera.far = 80;
+
 scene.add(dir);
 
 // ==== GROUND ====
