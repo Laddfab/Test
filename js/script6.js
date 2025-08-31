@@ -30,7 +30,7 @@ var INITIAL_BACKGROUND = "#ffffff";
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
 
 /* NOTA: DESPLAZAMIENTO HORIZONTAL EN EL ENCUADRE (proporción del ancho del modelo) */
-var FRAME_OFFSET_X_RATIO = 0.25; // 0 = centrado, 0.25 = desplaza el objeto hacia la DERECHA
+var FRAME_OFFSET_X_RATIO = 0.5; // 0 = centrado, 0.25 = desplaza el objeto hacia la DERECHA
 /* =========================================== */
 
 /* ===== DOM ===== */
