@@ -3,20 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>OBJ · Rhino</title>
+  <title>LADDFAB · Split Texto / 3D</title>
   <style>
-    html, body { margin:0; height:100%; background:#ffffff; }
-    canvas { display:block; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+
+    .split {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* izquierda / derecha */
+      width: 100vw; height: 100vh;
+    }
+    .col-text {
+      background:#fff; color:#111;
+      display:flex; flex-direction:column;
+      padding:6vw 5vw;
+      overflow-y:auto;                   /* scroll en el texto */
+      order: 1;                          /* texto a la IZQUIERDA */
+    }
+    .col-3d {
+      background:#fff;
+      position:relative;
+      overflow:hidden;                   /* 3D a la DERECHA */
+      order: 2;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .brand    { font-size:clamp(32px,6vw,56px); font-weight:700; margin:0 0 12px; }
+    .subtitle { font-size:clamp(16px,2.2vw,22px); margin:0 0 18px; color:#333; line-height:1.4; }
+    .split::before {
+      content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:#e7e7e7;
+    }
   </style>
+
+  <!-- Import map a tu three local -->
   <script type="importmap">
   {
-    "imports": { "three": "./lib/three.js-r161/build/three.module.min.js" }
+    "imports": {
+      "three": "./lib/three.js-r161/build/three.module.min.js"
+    }
   }
   </script>
 </head>
 <body>
-  <!-- No hace falta div contenedor -->
+  <div class="split">
+    <!-- IZQUIERDA: TEXTO -->
+    <div class="col-text">
+      <div class="wrap">
+        <h1 class="brand">Laddfab</h1>
+        <p class="subtitle">Laboratorio de fabricación digital</p>
+
+        <!-- Texto de muestra para scroll -->
+        <p>
+          Bienvenido. Este panel admite contenido largo y desplaza en vertical.
+          Aquí podrás colocar descripciones, servicios, enlaces y más.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer viverra, massa in rhoncus
+          dignissim, tellus nisi dapibus nisl, a condimentum justo risus a lacus. Curabitur varius gravida
+          lectus, a hendrerit nibh tempus ut. Suspendisse potenti. Etiam venenatis sodales purus.
+        </p>
+        <p>
+          Más contenido de prueba. Repite o edita a gusto para validar el comportamiento con textos largos
+          y distintos tamaños de pantalla.
+        </p>
+      </div>
+    </div>
+
+    <!-- DERECHA: 3D -->
+    <div class="col-3d" id="three-pane"></div>
+  </div>
+
+  <!-- App -->
   <script type="module" src="js/script4.js"></script>
 </body>
 </html>
-
