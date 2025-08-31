@@ -62,7 +62,7 @@ function loadModel(pathStr){
         obj.traverse(o => { if (o.isMesh) o.material = new THREE.MeshNormalMaterial(); });
         scene.add(obj);
         addOutline(obj);
-        frameObject(obj, 1.12);
+        frameObject(obj, 1.5);
         resolve();
       }, undefined, reject);
     } else {
