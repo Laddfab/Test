@@ -293,7 +293,7 @@ try {
 
     // Panel
     panelColor: "#ffffff",
-    panelOpacity: 0.55,
+    panelOpacity: 0.15,
 
     // Interacción del 3D
     interact3D: true,
