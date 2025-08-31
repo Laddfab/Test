@@ -1,12 +1,12 @@
 // js/script6.js
 import * as THREE from "three";
 import { OrbitControls } from "../lib/three.js-r161/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "../lib/three.js-r161/jsm/loaders/GLTFLoader.js";
-import { OBJLoader } from "../lib/three.js-r161/jsm/loaders/OBJLoader.js";
-import { RGBELoader } from "../lib/three.js-r161/jsm/loaders/RGBELoader.js";
+import { GLTFLoader }  from "../lib/three.js-r161/jsm/loaders/GLTFLoader.js";
+import { OBJLoader }   from "../lib/three.js-r161/jsm/loaders/OBJLoader.js";
+import { RGBELoader }  from "../lib/three.js-r161/jsm/loaders/RGBELoader.js";
 import { EffectComposer } from "../lib/three.js-r161/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "../lib/three.js-r161/jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "../lib/three.js-r161/jsm/postprocessing/UnrealBloomPass.js";
+import { RenderPass }     from "../lib/three.js-r161/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass }from "../lib/three.js-r161/jsm/postprocessing/UnrealBloomPass.js";
 
 /* ===== CONFIG ===== */
 /* NOTA: FOG POR DEFECTO EN "none" */
@@ -30,17 +30,17 @@ var INITIAL_BACKGROUND = "#ffffff";
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
 /* =========================================== */
 
-// Elementos DOM
-var host = document.getElementById("three-bg");
+/* ===== DOM ===== */
+var host    = document.getElementById("three-bg");
 var overlay = document.getElementById("loading-overlay");
-var bar = document.getElementById("loading-bar");
-var pct = document.getElementById("loading-pct");
+var bar     = document.getElementById("loading-bar");
+var pct     = document.getElementById("loading-pct");
 
-// Parámetros por URL
+/* Model por URL */
 var q = new URLSearchParams(location.search);
 var MODEL = q.get("model") || "assets/rhino.obj";
 
-// LoadingManager con progreso real
+/* LoadingManager con progreso real */
 var manager = new THREE.LoadingManager(
   function onLoadAll() {
     if (overlay) {
@@ -57,7 +57,7 @@ var manager = new THREE.LoadingManager(
   function onError(url) { console.warn("Error cargando:", url); }
 );
 
-// Escena y fog
+/* ===== Escena y Fog ===== */
 var scene = new THREE.Scene();
 scene.background = new THREE.Color(INITIAL_BACKGROUND);
 
@@ -69,12 +69,12 @@ function applyFog() {
 }
 applyFog();
 
-// Cámara
+/* ===== Cámara ===== */
 var camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
-/* Anclamos “hacia la derecha”: posición isométrica desplazada */
+/* Anclado “hacia la derecha” (iso suave) */
 camera.position.set(2.8, 2.0, 2.4);
 
-// Renderer (canvas dentro de #three-bg)
+/* ===== Renderer ===== */
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -84,14 +84,13 @@ renderer.shadowMap.enabled = ENABLE_SHADOWS;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 host.appendChild(renderer.domElement);
 
-// Post-proceso
+/* ===== Post-proceso ===== */
 var composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 var bloomPass = new UnrealBloomPass(new THREE.Vector2(1,1), INITIAL_BLOOM_STRENGTH, 0.2, 0.9);
 composer.addPass(bloomPass);
 
-// Controles (no capturar eventos por defecto porque el canvas tiene pointer-events:none)
-// Si quisieras interactuar, pon pointer-events:auto en #three-bg y funcionará.
+/* ===== Controles ===== */
 var controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.autoRotate = AUTO_ROTATION;
@@ -99,7 +98,7 @@ controls.autoRotateSpeed = ROTATION_SPEED * 60;
 controls.minDistance = 0.05;
 controls.maxDistance = 500;
 
-// Luces
+/* ===== Luces ===== */
 var hemi = new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.8);
 hemi.position.set(0, 20, 0);
 scene.add(hemi);
@@ -116,7 +115,7 @@ dir.shadow.camera.near = 1;
 dir.shadow.camera.far = 80;
 scene.add(dir);
 
-// Suelo receptor de sombras
+/* ===== Suelo receptor de sombras ===== */
 var ground = new THREE.Mesh(
   new THREE.PlaneGeometry(400, 400),
   new THREE.ShadowMaterial({ opacity: 0.35 })
@@ -125,18 +124,18 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = ENABLE_SHADOWS;
 scene.add(ground);
 
-// HDRI (environment)
+/* ===== HDRI Environment ===== */
 var rgbeLoader = new RGBELoader(manager);
 rgbeLoader.load("assets/venice_sunset_4k.hdr", function(hdr){
   hdr.mapping = THREE.EquirectangularReflectionMapping;
   scene.environment = hdr;
 }, undefined, function(err){ console.warn("HDRI no cargado:", err); });
 
-// Loaders
+/* ===== Loaders ===== */
 var gltfLoader = new GLTFLoader(manager);
 var objLoader  = new OBJLoader(manager);
 
-// Carga modelo
+/* ===== Carga modelo ===== */
 loadModel(MODEL).catch(function(err){
   console.warn("Modelo no cargado:", err);
   var box = new THREE.Mesh(
@@ -217,7 +216,6 @@ function frameObject(obj, offset){
   var box = new THREE.Box3().setFromObject(obj);
   var size = box.getSize(new THREE.Vector3());
   var center = box.getCenter(new THREE.Vector3());
-  // Mirar hacia el centro del modelo
   controls.target.copy(center);
 
   var fov = THREE.MathUtils.degToRad(camera.fov);
@@ -240,7 +238,7 @@ function repositionGroundToModel(obj){
   ground.position.y = minY - 0.001;
 }
 
-// Resize al host fijo
+/* ===== Resize ===== */
 function resizeToHost(){
   var rect = host.getBoundingClientRect();
   var w = Math.max(1, Math.floor(rect.width));
@@ -256,7 +254,7 @@ resizeToHost();
 var ro = new ResizeObserver(function(){ resizeToHost(); });
 ro.observe(host);
 
-// Bucle
+/* ===== Loop ===== */
 function animate(){
   requestAnimationFrame(animate);
   controls.update();
@@ -274,15 +272,25 @@ try {
     bloomStrength: INITIAL_BLOOM_STRENGTH,
     directionalLight: INITIAL_DIR_LIGHT_INTENSITY,
     background: bgStyle,
-    fogType: FOG_TYPE
+    fogType: FOG_TYPE,
+
+    // Panel
+    panelColor: "#ffffff",
+    panelOpacity: 0.55,
+
+    // Interacción del 3D
+    interact3D: true
   };
 
+  // === Render / Post ===
   gui.add(params, "exposure", 0.1, 2).name("Exposure").onChange(function(v){
     renderer.toneMappingExposure = v;
   });
   gui.add(params, "bloomStrength", 0, 2).name("Bloom").onChange(function(v){
     bloomPass.strength = v;
   });
+
+  // === Luz / Fondo / Fog ===
   gui.add(params, "directionalLight", 0, 2).name("Dir Light").onChange(function(v){
     dir.intensity = v;
   });
@@ -293,7 +301,35 @@ try {
   gui.add(params, "fogType", ["none", "linear", "exp"]).name("Fog").onChange(function(v){
     FOG_TYPE = v; applyFog();
   });
+
+  // === Panel vidrio (color + opacidad) ===
+  function setPanelColor(hex){
+    var c = new THREE.Color(hex);
+    var r = Math.round(c.r * 255);
+    var g = Math.round(c.g * 255);
+    var b = Math.round(c.b * 255);
+    document.documentElement.style.setProperty("--panel-bg-r", String(r));
+    document.documentElement.style.setProperty("--panel-bg-g", String(g));
+    document.documentElement.style.setProperty("--panel-bg-b", String(b));
+  }
+  function setPanelOpacity(a){
+    var v = Math.max(0, Math.min(1, a));
+    document.documentElement.style.setProperty("--panel-bg-a", String(v));
+  }
+  // set inicial según params
+  setPanelColor(params.panelColor);
+  setPanelOpacity(params.panelOpacity);
+
+  gui.addColor(params, "panelColor").name("Panel · Color").onChange(setPanelColor);
+  gui.add(params, "panelOpacity", 0, 1, 0.01).name("Panel · Opacidad").onChange(setPanelOpacity);
+
+  // === Interacción 3D (pointer-events) ===
+  function setInteract3D(flag){
+    host.style.pointerEvents = flag ? "auto" : "none";
+  }
+  setInteract3D(params.interact3D);
+  gui.add(params, "interact3D").name("3D interactivo").onChange(setInteract3D);
+
 } catch(e) {
   console.warn("lil-gui no disponible:", e);
 }
-
