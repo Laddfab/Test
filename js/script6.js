@@ -29,8 +29,8 @@ var INITIAL_BACKGROUND = "#ffffff";
 /* NOTA: INTENSIDAD DE LUZ DIRECCIONAL INICIAL */
 var INITIAL_DIR_LIGHT_INTENSITY = 0.1;
 
-/* NOTA: DESPLAZAMIENTO HORIZONTAL EN EL ENCUADRE (proporción del ancho del modelo) */
-var FRAME_OFFSET_X_RATIO = 0.5; // 0 = centrado, 0.25 = desplaza el objeto hacia la DERECHA
+/* NOTA: DESPLAZAMIENTOS EN EL ENCUADRE (proporción respecto al tamaño del modelo) */
+var FRAME_OFFSET = { x: 0.25, y: 0.0, z: 0.0 }; // 0 = centrado; 0.25 desplaza hacia la DERECHA
 /* =========================================== */
 
 /* ===== DOM ===== */
@@ -139,6 +139,9 @@ rgbeLoader.load("assets/venice_sunset_4k.hdr", function(hdr){
 var gltfLoader = new GLTFLoader(manager);
 var objLoader  = new OBJLoader(manager);
 
+/* ===== Referencia al último modelo cargado ===== */
+var lastModel = null;
+
 /* ===== Carga modelo ===== */
 loadModel(MODEL).catch(function(err){
   console.warn("Modelo no cargado:", err);
@@ -149,8 +152,9 @@ loadModel(MODEL).catch(function(err){
   box.castShadow = ENABLE_SHADOWS;
   scene.add(box);
   addOutline(box);
-  frameObject(box, 1.15);
-  repositionGroundToModel(box);
+  lastModel = box;
+  frameObject(lastModel, 1.15);
+  repositionGroundToModel(lastModel);
 });
 
 function loadModel(path){
@@ -162,8 +166,9 @@ function loadModel(path){
         scene.add(model);
         enableModelShadows(model);
         addOutline(model);
-        frameObject(model, 1.15);
-        repositionGroundToModel(model);
+        lastModel = model;
+        frameObject(lastModel, 1.15);
+        repositionGroundToModel(lastModel);
         resolve();
       }, undefined, reject);
       return;
@@ -181,8 +186,9 @@ function loadModel(path){
         });
         scene.add(obj);
         addOutline(obj);
-        frameObject(obj, 1.12);
-        repositionGroundToModel(obj);
+        lastModel = obj;
+        frameObject(lastModel, 1.12);
+        repositionGroundToModel(lastModel);
         resolve();
       }, undefined, reject);
       return;
@@ -215,10 +221,7 @@ function addOutline(target){
   });
 }
 
-/* === Ajuste: desplazar el objeto un poco a la DERECHA del viewport ===
-   Lo logramos desplazando el "target" hacia la IZQUIERDA en mundo (center.x - offset),
-   de modo que el centro del modelo quede visualmente a la derecha.
-*/
+/* === Encuadre con offsets X/Y/Z relativos al tamaño del modelo === */
 function frameObject(obj, offset){
   if (offset == null) offset = 1.15;
   var box = new THREE.Box3().setFromObject(obj);
@@ -233,9 +236,13 @@ function frameObject(obj, offset){
   var dirVec = new THREE.Vector3(1.4, 0.8, 1.0).normalize();
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
 
-  /* DESPLAZAMIENTO HORIZONTAL (proporción del ancho del modelo) */
-  var offsetX = size.x * FRAME_OFFSET_X_RATIO;
-  controls.target.set(center.x - offsetX, center.y, center.z);
+  // Offsets relativos
+  var offX = size.x * FRAME_OFFSET.x;
+  var offY = size.y * FRAME_OFFSET.y;
+  var offZ = size.z * FRAME_OFFSET.z;
+
+  // Mover target: -X para empujar visualmente el modelo hacia la DERECHA
+  controls.target.set(center.x - offX, center.y + offY, center.z + offZ);
 
   camera.near = Math.max(0.01, distance / 100);
   camera.far  = Math.max(150, distance * 10);
@@ -291,8 +298,10 @@ try {
     // Interacción del 3D
     interact3D: true,
 
-    // Offset horizontal (proporción) para el encuadre
-    frameOffsetX: FRAME_OFFSET_X_RATIO
+    // Offsets del encuadre (proporciones)
+    frameOffsetX: FRAME_OFFSET.x,
+    frameOffsetY: FRAME_OFFSET.y,
+    frameOffsetZ: FRAME_OFFSET.z
   };
 
   // === Render / Post ===
@@ -328,13 +337,11 @@ try {
   function setPanelOpacity(a){
     var v = Math.max(0, Math.min(1, a));
     document.documentElement.style.setProperty("--panel-bg-a", String(v));
-    // Cuando v === 0, quitamos cualquier “piel” del panel
     if (panelEl) {
       if (v === 0) panelEl.classList.add("panel-transparent");
       else panelEl.classList.remove("panel-transparent");
     }
   }
-  // set inicial según params
   setPanelColor(params.panelColor);
   setPanelOpacity(params.panelOpacity);
 
@@ -348,13 +355,18 @@ try {
   setInteract3D(params.interact3D);
   gui.add(params, "interact3D").name("3D interactivo").onChange(setInteract3D);
 
-  // === Offset de encuadre (desplaza el modelo a la derecha) ===
-  gui.add(params, "frameOffsetX", 0, 0.5, 0.01).name("Frame · OffsetX").onChange(function(v){
-    FRAME_OFFSET_X_RATIO = v;
-    // Reencuadra con el offset actualizado: si tienes referencia al modelo root, podrías llamarla.
-    // Como ejemplo simple, intenta reencuadrar toda la escena:
-    // (Para precisión, guarda el último objeto cargado y pásalo aquí)
-    // frameObject(scene, 1.15);  // <- si tu modelo es root, ajusta según tu estructura
+  // === Offsets del encuadre (X/Y/Z) ===
+  gui.add(params, "frameOffsetX", -1, 1, 0.01).name("Frame · OffX").onChange(function(v){
+    FRAME_OFFSET.x = v;
+    if (lastModel) frameObject(lastModel, 1.15);
+  });
+  gui.add(params, "frameOffsetY", -1, 1, 0.01).name("Frame · OffY").onChange(function(v){
+    FRAME_OFFSET.y = v;
+    if (lastModel) frameObject(lastModel, 1.15);
+  });
+  gui.add(params, "frameOffsetZ", -1, 1, 0.01).name("Frame · OffZ").onChange(function(v){
+    FRAME_OFFSET.z = v;
+    if (lastModel) frameObject(lastModel, 1.15);
   });
 
 } catch(e) {
