@@ -8,10 +8,10 @@ import { RenderPass } from "../lib/three.js-r161/jsm/postprocessing/RenderPass.j
 import { UnrealBloomPass } from "../lib/three.js-r161/jsm/postprocessing/UnrealBloomPass.js";
 
 // ==== CONFIG ====
+let FOG_TYPE = "linear";          // 'linear' | 'exp' | 'none' (se cambia desde GUI)
 const BACKGROUND_COLOR = "#d60000";
 const ENABLE_SHADOWS = true;
 const FOG_ON = true;
-const FOG_TYPE = "linear";
 const FOG_LINEAR = { near: 8, far: 55 };
 const FOG_EXP = { density: 0.03 };
 const AUTO_ROTATION = true;
@@ -25,41 +25,42 @@ const MODEL = q.get("model") || "assets/rhino.obj";
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(BACKGROUND_COLOR);
 
+// Fog
 function applyFog() {
   const bgHex = scene.background?.getHex?.() ?? 0x000000;
-  scene.fog = FOG_ON
-    ? (FOG_TYPE === "exp"
-        ? new THREE.FogExp2(bgHex, FOG_EXP.density)
-        : new THREE.Fog(bgHex, FOG_LINEAR.near, FOG_LINEAR.far))
-    : null;
+  if (!FOG_ON || FOG_TYPE === "none") { scene.fog = null; return; }
+  scene.fog = (FOG_TYPE === "exp")
+    ? new THREE.FogExp2(bgHex, FOG_EXP.density)
+    : new THREE.Fog(bgHex, FOG_LINEAR.near, FOG_LINEAR.far);
 }
 applyFog();
 
-// ==== CAMERA ====
+// Camera
 const camera = new THREE.PerspectiveCamera(20, 1, 0.1, 1000);
 camera.position.set(2.5, 2, 1);
 
-// ==== RENDERER ====
+// Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.0;
+renderer.toneMappingExposure = 0.6; // <- bajado para menos brillo inicial
 renderer.shadowMap.enabled = ENABLE_SHADOWS;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 pane.appendChild(renderer.domElement);
 
-// ==== POSTPROCESSING ====
+// Postprocessing (Bloom)
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.6, 0.4, 0.85
+  0.3, // strength más bajo
+  0.2, // radius
+  0.9  // threshold
 );
 composer.addPass(bloomPass);
 
-// ==== CONTROLS ====
+// Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.autoRotate = AUTO_ROTATION;
@@ -67,7 +68,7 @@ controls.autoRotateSpeed = ROTATION_SPEED * 60;
 controls.minDistance = 0.05;
 controls.maxDistance = 500;
 
-// ==== LIGHTS ====
+// Lights
 const hemi = new THREE.HemisphereLight(0xffffff, 0xe6e6e6, 0.8);
 hemi.position.set(0, 20, 0);
 scene.add(hemi);
@@ -76,33 +77,30 @@ const dir = new THREE.DirectionalLight(0xffffff, 1.2);
 dir.position.set(6, 10, 6);
 dir.castShadow = ENABLE_SHADOWS;
 dir.shadow.mapSize.set(2048, 2048);
-
-// ✅ Corrección aquí: configurar cámara manualmente
 dir.shadow.camera.left = -20;
 dir.shadow.camera.right = 20;
 dir.shadow.camera.top = 20;
 dir.shadow.camera.bottom = -20;
 dir.shadow.camera.near = 1;
 dir.shadow.camera.far = 80;
-
 scene.add(dir);
 
-// ==== GROUND ====
-const groundMat = new THREE.ShadowMaterial({ opacity: 0.35 });
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), groundMat);
+// Ground
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(400, 400),
+  new THREE.ShadowMaterial({ opacity: 0.35 })
+);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = ENABLE_SHADOWS;
 scene.add(ground);
 
-// ==== HDRI ====
-const rgbeLoader = new RGBELoader();
-rgbeLoader.load("assets/venice_sunset_4k.hdr", (hdrTexture) => {
-  hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
-  scene.environment = hdrTexture;
-  // scene.background = new THREE.Color(BACKGROUND_COLOR); // opcional
+// HDRI
+new RGBELoader().load("assets/venice_sunset_4k.hdr", (hdr) => {
+  hdr.mapping = THREE.EquirectangularReflectionMapping;
+  scene.environment = hdr;
 });
 
-// ==== LOADERS ====
+// Loaders
 const gltfLoader = new GLTFLoader();
 const objLoader = new OBJLoader();
 
@@ -122,7 +120,6 @@ loadModel(MODEL).catch((err) => {
 function loadModel(path) {
   return new Promise((resolve, reject) => {
     const ext = path.split('.').pop().toLowerCase();
-
     if (["glb", "gltf"].includes(ext)) {
       gltfLoader.load(path, (gltf) => {
         const model = gltf.scene;
@@ -193,7 +190,7 @@ function frameObject(obj, offset = 1.15) {
   camera.position.copy(center.clone().add(dirVec.multiplyScalar(distance)));
 
   camera.near = Math.max(0.01, distance / 100);
-  camera.far = Math.max(150, distance * 10);
+  camera.far  = Math.max(150, distance * 10);
   camera.updateProjectionMatrix();
   controls.update();
 }
@@ -203,7 +200,7 @@ function repositionGroundToModel(obj) {
   ground.position.y = minY - 0.001;
 }
 
-// ==== RESIZE ====
+// Resize al contenedor sticky
 const ro = new ResizeObserver(([entry]) => {
   const { width, height } = entry.contentRect;
   renderer.setSize(width, height);
@@ -213,7 +210,7 @@ const ro = new ResizeObserver(([entry]) => {
 });
 ro.observe(pane);
 
-// ==== ANIMATE ====
+// Loop
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
@@ -221,8 +218,18 @@ function animate() {
 }
 animate();
 
-// ==== CONSOLE HELPERS ====
-window.toggleBloom = () => {
-  bloomPass.enabled = !bloomPass.enabled;
-  console.log("Bloom " + (bloomPass.enabled ? "activado" : "desactivado"));
+// ==== GUI ====
+const gui = new lil.GUI();
+const params = {
+  exposure: renderer.toneMappingExposure,
+  bloomStrength: bloomPass.strength,
+  directionalLight: dir.intensity,
+  background: scene.background.getStyle?.() ?? BACKGROUND_COLOR,
+  fogType: FOG_TYPE
 };
+
+gui.add(params, 'exposure', 0.1, 2).name('Exposure').onChange(v => renderer.toneMappingExposure = v);
+gui.add(params, 'bloomStrength', 0, 2).name('Bloom').onChange(v => bloomPass.strength = v);
+gui.add(params, 'directionalLight', 0, 2).name('Dir Light').onChange(v => dir.intensity = v);
+gui.addColor(params, 'background').name('Fondo').onChange(v => { scene.background = new THREE.Color(v); applyFog(); });
+gui.add(params, 'fogType', ['none', 'linear', 'exp']).name('Fog').onChange(v => { FOG_TYPE = v; applyFog(); });
