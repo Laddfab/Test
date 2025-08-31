@@ -50,21 +50,21 @@ renderer.shadowMap.enabled = ENABLE_SHADOWS;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 pane.appendChild(renderer.domElement);
 
-// ==== POSTPROCESSING: Bloom ====
+// ==== POSTPROCESSING ====
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  0.6, // strength
-  0.4, // radius
-  0.85 // threshold
+  0.6, 0.4, 0.85
 );
 composer.addPass(bloomPass);
 
 // ==== CONTROLS ====
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.autoRotate = AUTO_ROTATION;
+controls.autoRotateSpeed = ROTATION_SPEED * 60;
 controls.minDistance = 0.05;
 controls.maxDistance = 500;
 
@@ -77,7 +77,10 @@ const dir = new THREE.DirectionalLight(0xffffff, 1.2);
 dir.position.set(6, 10, 6);
 dir.castShadow = ENABLE_SHADOWS;
 dir.shadow.mapSize.set(2048, 2048);
-dir.shadow.camera.set(-20,20,20,-20);
+dir.shadow.camera.left = -20;
+dir.shadow.camera.right = 20;
+dir.shadow.camera.top = 20;
+dir.shadow.camera.bottom = -20;
 dir.shadow.camera.near = 1;
 dir.shadow.camera.far = 80;
 scene.add(dir);
@@ -212,17 +215,11 @@ ro.observe(pane);
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-
-  if (AUTO_ROTATION && controls.autoRotate === undefined) {
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = ROTATION_SPEED * 60; // ajustes rápidos
-  }
-
   composer.render();
 }
 animate();
 
-// ==== HELPERS ====
+// ==== CONSOLE HELPERS ====
 window.toggleBloom = () => {
   bloomPass.enabled = !bloomPass.enabled;
   console.log("Bloom " + (bloomPass.enabled ? "activado" : "desactivado"));
