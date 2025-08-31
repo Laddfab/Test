@@ -3,78 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LADDFAB · Split Texto / 3D</title>
+  <title>Split · 3D (izq) + Texto (der)</title>
   <style>
     * { box-sizing: border-box; }
     html, body { margin:0; height:100%; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-
-    .split {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1fr 1fr; /* izquierda / derecha */
-      width: 100vw; height: 100vh;
-    }
-    .col-text {
-      background:#fff; color:#111;
-      display:flex; flex-direction:column;
-      padding:6vw 5vw;
-      overflow-y:auto;                   /* scroll en el texto */
-      order: 1;                          /* texto a la IZQUIERDA */
-    }
-    .col-3d {
-      background:#fff;
-      position:relative;
-      overflow:hidden;                   /* 3D a la DERECHA */
-      order: 2;
-    }
+    .split { display: grid; grid-template-columns: 1fr 1fr; width: 100vw; height: 100vh; }
+    .col-3d { background:#fff; position:relative; overflow:hidden; }  /* IZQ: 3D sin scroll */
+    .col-text { background:#f5f5f5; color:#111; padding:3vw; overflow-y:auto; } /* DER: scroll */
     .wrap { max-width: 640px; margin: 0 auto; }
-    .brand    { font-size:clamp(32px,6vw,56px); font-weight:700; margin:0 0 12px; }
-    .subtitle { font-size:clamp(16px,2.2vw,22px); margin:0 0 18px; color:#333; line-height:1.4; }
-    .split::before {
-      content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:#e7e7e7;
-    }
+    .brand { font-size:clamp(28px,5vw,48px); font-weight:700; margin:0 0 12px; }
+    .subtitle { font-size:clamp(16px,2.2vw,20px); margin:0 0 18px; color:#333; line-height:1.4; }
   </style>
-
-  <!-- Import map a tu three local -->
   <script type="importmap">
-  {
-    "imports": {
-      "three": "./lib/three.js-r161/build/three.module.min.js"
-    }
-  }
+  { "imports": { "three": "./lib/three.js-r161/build/three.module.min.js" } }
   </script>
 </head>
 <body>
   <div class="split">
-    <!-- IZQUIERDA: TEXTO -->
+    <div class="col-3d" id="three-pane"></div>
     <div class="col-text">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
         <p class="subtitle">Laboratorio de fabricación digital</p>
-
-        <!-- Texto de muestra para scroll -->
-        <p>
-          Bienvenido. Este panel admite contenido largo y desplaza en vertical.
-          Aquí podrás colocar descripciones, servicios, enlaces y más.
-        </p>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer viverra, massa in rhoncus
-          dignissim, tellus nisi dapibus nisl, a condimentum justo risus a lacus. Curabitur varius gravida
-          lectus, a hendrerit nibh tempus ut. Suspendisse potenti. Etiam venenatis sodales purus.
-        </p>
-        <p>
-          Más contenido de prueba. Repite o edita a gusto para validar el comportamiento con textos largos
-          y distintos tamaños de pantalla.
-        </p>
+        <!-- Texto largo para percibir el scroll -->
+        <p>Bienvenido. Este panel admite contenido largo y se desplaza en vertical. Aquí puedes colocar descripciones, servicios, enlaces y más.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eget magna sed nulla feugiat ultrices. Sed a venenatis odio. Donec blandit, lacus sed feugiat viverra, purus justo varius sapien, id viverra nunc purus ac augue.</p>
+        <p>Suspendisse potenti. Integer nec semper libero, id viverra nibh. Curabitur at tincidunt nulla. Pellentesque facilisis ligula vel nisl pulvinar, ac egestas neque viverra.</p>
+        <p>Morbi feugiat, arcu non tincidunt sagittis, urna ligula imperdiet tortor, ac sodales augue augue non magna. Vivamus malesuada, magna ut iaculis malesuada, nunc nisl ultricies risus, vitae vulputate sem nibh at ipsum.</p>
+        <p>Proin aliquam eros vitae risus maximus, in ultricies orci imperdiet. Sed volutpat, ex id dapibus dignissim, risus est varius risus, in porttitor purus dui nec felis.</p>
+        <p>Aliquam erat volutpat. Fusce nec nibh id est ultricies faucibus. Integer a orci vitae lorem accumsan pulvinar. Etiam congue diam at nisi ultrices.</p>
+        <p>Más contenido de prueba… Repite o edita a gusto para validar el comportamiento con textos largos y distintos tamaños de pantalla.</p>
       </div>
     </div>
-
-    <!-- DERECHA: 3D -->
-    <div class="col-3d" id="three-pane"></div>
   </div>
-
-  <!-- App -->
   <script type="module" src="js/script4.js"></script>
 </body>
 </html>
+
