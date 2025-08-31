@@ -53,7 +53,7 @@ function loadModel(pathStr){
         scene.add(model);
         model.traverse(o => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.6, metalness:0 }); });
         addOutline(model);
-        frameObject(model, 1.7); // fitOffset más cerca (1.1–1.2)
+        frameObject(model, 1.9); // fitOffset más cerca (1.1–1.2) mas cerca!!!
         resolve();
       }, undefined, reject);
     } else if (ext === "obj") {
