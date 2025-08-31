@@ -26,7 +26,7 @@
     /* 3D de fondo (el canvas va dentro) */
     #three-bg {
       position: fixed; inset: 0; z-index: 0;
-      /* Por defecto: permitir interacción fuera del panel */
+      /* Permitir interacción del 3D fuera del panel */
       pointer-events: auto;
     }
 
@@ -35,6 +35,9 @@
       position: relative; z-index: 1;
       min-height: 100vh;
       display: flex; justify-content: flex-start; align-items: stretch;
+
+      /* CLAVE: que no intercepte eventos por defecto */
+      pointer-events: none;
     }
 
     /* Panel IZQUIERDO (vidrio pavonado) */
@@ -48,20 +51,22 @@
       -webkit-backdrop-filter: blur(10px) saturate(1.1);
       border-right: 1px solid rgba(255,255,255,0.45);
       box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-      pointer-events: auto; /* el panel sí captura eventos */
+
+      /* CLAVE: el panel SÍ capta eventos (scroll/clicks) */
+      pointer-events: auto;
     }
 
     .wrap { max-width: 720px; }
     .brand { font-size:clamp(28px,5vw,48px); font-weight:700; margin:0 0 12px; }
     .subtitle { font-size:clamp(16px,2.2vw,20px); margin:0 0 18px; color:#333; line-height:1.4; }
 
-    /* Zona derecha: deja ver el 3D */
-    .spacer-right { flex: 1 1 auto; }
+    /* Zona derecha: deja ver el 3D y NO bloquea eventos */
+    .spacer-right { flex: 1 1 auto; pointer-events: none; }
 
-    /* Móvil */
+    /* Móvil: solo el panel capta eventos */
     @media (max-width: 900px){
-      .page { display:block; }
-      .panel-left { width: 100vw; border-right: none; }
+      .page { display:block; pointer-events: none; }
+      .panel-left { width: 100vw; border-right: none; pointer-events: auto; }
       .wrap { max-width: 640px; }
     }
 
@@ -71,6 +76,8 @@
       background: #0b0b0c; color: #fff;
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
       font: 14px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      /* Mientras está visible, bloquea eventos (lógico); se oculta al cargar */
+      pointer-events: auto;
     }
     #loading-bar-rail {
       width: min(520px, 52vw); height: 6px; background:#222; border-radius:999px; overflow:hidden;
@@ -78,8 +85,8 @@
     #loading-bar { height:100%; width:0%; background:#4ade80; transition: width .15s linear; }
     #loading-pct { font-variant-numeric: tabular-nums; }
 
-    /* lil-gui arriba-derecha */
-    .lil-gui.root { position: fixed !important; right: 10px; top: 10px; z-index: 2; }
+    /* lil-gui arriba-derecha y clickeable */
+    .lil-gui.root { position: fixed !important; right: 10px; top: 10px; z-index: 2; pointer-events: auto; }
   </style>
 
   <!-- Import map local (Three r161) -->
@@ -89,7 +96,7 @@
 </head>
 <body>
 
-  <!-- 3D de fondo -->
+  <!-- 3D de fondo (el renderer se inyecta aquí) -->
   <div id="three-bg"></div>
 
   <!-- Overlay de CARGA -->
@@ -104,10 +111,10 @@
     <section class="panel-left">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
-        <p class="subtitle">Laboratorio de fabricación digitalzzz</p>
+        <p class="subtitle">Laboratorio de fabricación digital</p>
 
         <h2>Introducción</h2>
-        <p>Panel vidrio pavonado a la izquierda; el 3D se renderiza detrás a pantalla completa y puedes manipularlo en la zona derecha. Este texto es largo para validar el scroll del navegador.</p>
+        <p>Panel vidrio pavonado a la izquierda; el 3D se renderiza detrás y puedes manipularlo en la zona derecha. Este texto es largo para validar el scroll del navegador.</p>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac urna non nunc ornare elementum. Integer sagittis sem sem, a dapibus lectus vestibulum nec. Sed ac congue ante. Maecenas dictum pharetra erat, eget pulvinar magna fermentum sit amet.</p>
         <p>Sed eget consequat nisi, vitae placerat orci. Praesent facilisis, arcu non rhoncus scelerisque, elit justo pulvinar ipsum, sit amet semper metus mauris ut velit. Mauris dignissim varius placerat. Etiam nec mi nec velit gravida tristique. Nulla facilisi.</p>
 
