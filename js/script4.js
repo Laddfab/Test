@@ -10,7 +10,7 @@ const MODEL = q.get("model") || "assets/rhino.obj"; // cambia aquí o usa ?model
 // Escena y cámara
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-camera.position.set(2.5, 2, 4);
+camera.position.set(2.5, 5, 4);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias:true });
@@ -53,7 +53,7 @@ function loadModel(pathStr){
         scene.add(model);
         model.traverse(o => { if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ color:0xffffff, roughness:0.6, metalness:0 }); });
         addOutline(model);
-        frameObject(model, 1.12); // fitOffset más cerca (1.1–1.2)
+        frameObject(model, 1.7); // fitOffset más cerca (1.1–1.2)
         resolve();
       }, undefined, reject);
     } else if (ext === "obj") {
@@ -62,7 +62,7 @@ function loadModel(pathStr){
         obj.traverse(o => { if (o.isMesh) o.material = new THREE.MeshNormalMaterial(); });
         scene.add(obj);
         addOutline(obj);
-        frameObject(obj, 1.5);
+        frameObject(obj, 1.12);
         resolve();
       }, undefined, reject);
     } else {
