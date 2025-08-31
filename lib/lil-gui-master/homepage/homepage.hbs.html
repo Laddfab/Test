@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{ pkg.name }} {{ pkg.version }}</title>
+	<link rel="stylesheet" href="homepage/homepage.css">
+</head>
+<body>
+
+	<script type="module" src="homepage/homepage.js"></script>
+
+	<div id="container">
+
+		<button id="toc-button">
+			<div>Table of Contents</div>
+		</button>
+
+		<div id="toc-container">
+			<nav id="toc">
+
+				<h1><a href="#">{{ pkg.name }} {{ pkg.version }}</a></h1>
+
+				<h2><a href="#Examples">Examples</a></h2>
+
+				<h2><a href="#Guide">Guide</a></h2>
+
+				{{{ guidetoc }}}
+
+				<h2><a href="#Migrating">Migrating</a></h2>
+
+				<h2><a href="#API">API</a></h2>
+
+				{{{ apitoc }}}
+
+			</nav>
+		</div>
+
+		<main>
+
+			<a name=""></a>
+
+			<section id="section-readme">
+				{{{ readme }}}
+
+				<a href="{{ builds.module }}">Built Source</a> •
+				<a href="{{ builds.moduleMin }}">Minified</a> = {{ sizeMin }}kb, <strong>{{ sizeGzip }}kb</strong> gzipped
+
+			</section>
+
+			<section id="section-examples">
+				<a name="Examples"></a>
+				<h1>Examples</h1>
+				<ul>
+					<li><a href="examples/basic"><strong>Basic Demo</strong></a></li>
+					<li><a href="examples/kitchen-sink"><strong>Kitchen Sink</strong></a> - Exhaustive demonstration of features and styles.</li>
+					<li><a href="https://threejs.org/examples/">three.js examples</a> - Many three.js examples feature lil-gui.</li>
+					<li><a href="https://filters.pixijs.download/main/demo/index.html">PixiJS Filters Demo</a> - Procedurally creates a lil-gui for every filter in PixiJS.</li>
+				</ul>
+			</section>
+
+			<section id="section-guide">
+				<a name="Guide"></a>
+				{{{ guide }}}
+			</section>
+
+			<section id="section-migrating">
+				<a name="Migrating"></a>
+				{{{ migrating }}}
+			</section>
+
+			<section id="section-api">
+				<a name="API"></a>
+				{{{ apibody }}}
+			</section>
+
+		</main>
+
+	</div>
+
+	{{{ jsdocDebug }}}
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "editor.defaultFormatter": "HookyQR.beautify",
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": false,
+  "editor.detectIndentation": false,
+  "files.insertFinalNewline": true,
+  "beautify.config": {
+    "end_with_newline": true,
+    "extra_liners": [],
+    "indent_with_tabs": true,
+    "indent_inner_html": false,
+    "max_preserve_newlines": 1,
+    "newline_between_rules": false,
+    "selector_separator_newline": false,
+    "space_around_combinator": true,
+    "unformatted": [
+      "script",
+      "pre"
+    ]
+  },
+  // js
+  "eslint.format.enable": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  // todo: not working if combined
+  "[html]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  // json
+  "[json][jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+  },
+}
