@@ -9,8 +9,7 @@
     html, body { margin:0; height:100%; }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      /* Scrollbar del navegador al extremo derecho */
-      overflow-y: auto;
+      overflow-y: auto; /* Scrollbar del navegador al extremo derecho */
       background: #000; /* fallback mientras no renderiza el 3D */
     }
 
@@ -26,8 +25,7 @@
     /* 3D de fondo (el canvas va dentro) */
     #three-bg {
       position: fixed; inset: 0; z-index: 0;
-      /* Permitir interacción del 3D fuera del panel */
-      pointer-events: auto;
+      pointer-events: auto; /* Permitir interacción del 3D fuera del panel */
     }
 
     /* Capa de contenido encima del 3D */
@@ -35,9 +33,7 @@
       position: relative; z-index: 1;
       min-height: 100vh;
       display: flex; justify-content: flex-start; align-items: stretch;
-
-      /* CLAVE: que no intercepte eventos por defecto */
-      pointer-events: none;
+      pointer-events: none; /* CLAVE: no interceptar eventos fuera del panel */
     }
 
     /* Panel IZQUIERDO (vidrio pavonado) */
@@ -46,14 +42,23 @@
       padding: clamp(16px, 3vw, 36px);
       color: #111;
 
+      /* por defecto: vidrio visible (cuando --panel-bg-a > 0) */
       background: rgba(var(--panel-bg-r), var(--panel-bg-g), var(--panel-bg-b), var(--panel-bg-a));
       backdrop-filter: blur(10px) saturate(1.1);
       -webkit-backdrop-filter: blur(10px) saturate(1.1);
       border-right: 1px solid rgba(255,255,255,0.45);
       box-shadow: 0 10px 40px rgba(0,0,0,0.08);
 
-      /* CLAVE: el panel SÍ capta eventos (scroll/clicks) */
-      pointer-events: auto;
+      pointer-events: auto; /* el panel SÍ capta eventos */
+    }
+
+    /* Cuando la opacidad es 0, hacemos el panel realmente invisible */
+    .panel-left.panel-transparent {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-right: none !important;
+      box-shadow: none !important;
     }
 
     .wrap { max-width: 720px; }
@@ -76,8 +81,7 @@
       background: #0b0b0c; color: #fff;
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
       font: 14px/1.1 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      /* Mientras está visible, bloquea eventos (lógico); se oculta al cargar */
-      pointer-events: auto;
+      pointer-events: auto; /* mientras está visible, bloquea eventos */
     }
     #loading-bar-rail {
       width: min(520px, 52vw); height: 6px; background:#222; border-radius:999px; overflow:hidden;
@@ -108,10 +112,10 @@
 
   <!-- Panel IZQUIERDO (vidrio) + espacio DERECHA -->
   <main class="page">
-    <section class="panel-left">
+    <section class="panel-left" id="panel-left">
       <div class="wrap">
         <h1 class="brand">Laddfab</h1>
-        <p class="subtitle">Laboratorio de fabricación digitalqqq</p>
+        <p class="subtitle">Laboratorio de fabricación digitalfff1</p>
 
         <h2>Introducción</h2>
         <p>Panel vidrio pavonado a la izquierda; el 3D se renderiza detrás y puedes manipularlo en la zona derecha. Este texto es largo para validar el scroll del navegador.</p>
