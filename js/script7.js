@@ -35,7 +35,7 @@ var FRAME_OFFSET = { x: 0.90, y: -0.20, z: 0.50 }; // 0 = centrado; 0.25 desplaz
 
 /* ===== NUEVO: control color panel en móvil ===== */
 var MOBILE_BREAKPOINT = 900;                 // px
-var INITIAL_PANEL_BG_MOBILE = "#ffffff";     // color sólido en móvil
+var INITIAL_PANEL_BG_MOBILE = "#DEDEDE";     // color sólido en móvil
 
 function isMobile(){ return window.innerWidth <= MOBILE_BREAKPOINT; }
 /* =========================================== */
