@@ -10,7 +10,7 @@ const MODEL = q.get("model") || "assets/rhino.obj"; // cambia aquí o usa ?model
 // Escena y cámara
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-camera.position.set(2.5, 2, 1);  // posicion inicial de la camara
+camera.position.set(10, 2, 1);  // posicion inicial de la camara
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias:true });
